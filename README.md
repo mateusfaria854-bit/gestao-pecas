@@ -4,7 +4,7 @@ Sistema web para gestão de peças, movimentações de estoque, reformas e forne
 
 Este repositório contém uma demonstração com dados fictícios e integração simulada com ordens de serviço.
 
-**Demonstração online:** publique esta versão em GitHub Pages ou Netlify e adicione o endereço aqui. O projeto também funciona abrindo `index.html` localmente, sem cadastro nem banco externo.
+**Demonstração online:** O projeto funciona abrindo `index.html` localmente, sem cadastro nem banco externo.
 
 > Acesse o modo demonstração com **Administrador Demo** para explorar os relatórios e os logs, ou com **Usuário Demo** para conferir as permissões.
 
