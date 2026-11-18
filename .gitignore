@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+node_modules/
+.firebase/
+*.log
+.DS_Store
+.vscode/
+.idea/
+# Configuração local do Firebase (nunca publicar)
+js/firebase-config.local.js

@@ -1,0 +1,26 @@
+name: Testes da demonstração
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar Playwright e navegador
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install playwright==1.57.0
+          python -m playwright install --with-deps chromium
+      - name: Executar testes
+        env:
+          CHROMIUM_BIN: ''
+        run: |
+          python tests/test_demo.py
+          python tests/test_melhorias.py
