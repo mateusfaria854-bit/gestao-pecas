@@ -4,8 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GestãoPeças · Sistema de Gestão de Almoxarifado</title>
-<link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="src/styles/variables.css">
+<link rel="stylesheet" href="src/styles/base.css">
+<link rel="stylesheet" href="src/styles/layout.css">
+<link rel="stylesheet" href="src/styles/components.css">
+<link rel="stylesheet" href="src/styles/forms.css">
+<link rel="stylesheet" href="src/styles/tables.css">
+<link rel="stylesheet" href="src/styles/dashboard.css">
+<link rel="stylesheet" href="src/styles/login.css">
+<link rel="stylesheet" href="src/styles/utilities.css">
+<link rel="stylesheet" href="src/styles/responsive.css">
 </head>
 <body>
 <div id="notificacoes" class="notificacoes" aria-live="polite" aria-relevant="additions"></div>
@@ -55,7 +63,7 @@
       <div class="content">
         <div class="stats-row" id="dash-stats"></div>
         <div id="dash-low-banner"></div>
-        <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:16px;" id="dash-cols">
+        <div id="dash-cols" class="u-layout-01">
           <div class="card">
             <div class="section-title">🔧 Envios em Aberto</div>
             <div id="dash-envios-abertos"></div>
@@ -80,14 +88,14 @@
         </div>
       </div>
       <div class="content">
-        <div class="stats-row" id="estoque-stats" style="grid-template-columns:repeat(3,1fr);"></div>
+        <div class="stats-row u-grid-3" id="estoque-stats"></div>
         <div class="cat-tabs" id="estoque-cat-tabs"></div>
         <div class="toolbar">
           <div class="search-wrap">
             <span class="search-icon">🔍</span>
             <input type="text" class="search-input" placeholder="Buscar por nome, código ou localização..." id="search-pecas" aria-label="Buscar peças por nome, código ou localização" oninput="debouncedRenderEstoque();toggleSearchIcon(this)">
           </div>
-          <select style="width:170px;" id="filter-status-peca" aria-label="Filtrar por status da peça" onchange="renderEstoque()">
+          <select id="filter-status-peca" aria-label="Filtrar por status da peça" onchange="renderEstoque()" class="u-width-170">
             <option value="">Todos os status</option>
             <option value="Disponível">Disponível</option>
             <option value="Em Reforma">Em Reforma</option>
@@ -107,7 +115,7 @@
             <div class="empty-sub">Adicione uma nova peça ou ajuste os filtros.</div>
           </div>
         </div>
-        <div id="pecas-pagination" style="display:flex;gap:8px;align-items:center;justify-content:center;margin-top:14px;"></div>
+        <div id="pecas-pagination" class="u-layout-04"></div>
       </div>
     </div>
 
@@ -118,13 +126,13 @@
         <div class="page-heading"><div class="page-title">Curva A · Peças Paradas</div><p class="page-description">Organize os itens parados e acompanhe seu valor.</p></div>
       </div>
       <div class="content">
-        <div class="stats-row" id="curvaa-stats" style="grid-template-columns:repeat(3,1fr);"></div>
+        <div class="stats-row u-grid-3" id="curvaa-stats"></div>
         <div class="toolbar">
           <div class="search-wrap">
             <span class="search-icon">🔍</span>
             <input type="text" class="search-input" placeholder="Buscar por nome, código ou localização..." id="search-curvaa" oninput="debouncedRenderCurvaA();toggleSearchIcon(this)">
           </div>
-          <select style="width:170px;" id="filter-cat-curvaa" onchange="curvaPagina=1;renderCurvaA()">
+          <select id="filter-cat-curvaa" onchange="curvaPagina=1;renderCurvaA()" class="u-width-170">
             <option value="">Todas as categorias</option>
             <option value="Funilaria">Funilaria</option>
             <option value="Elétrica">Elétrica</option>
@@ -145,7 +153,7 @@
             <div class="empty-sub">Em "Peças em Estoque", use o botão "🅰️ Curva A" para mover peças paradas para cá.</div>
           </div>
         </div>
-        <div id="curvaa-pagination" style="display:flex;gap:8px;align-items:center;justify-content:center;margin-top:14px;"></div>
+        <div id="curvaa-pagination" class="u-layout-04"></div>
       </div>
     </div>
 
@@ -159,19 +167,19 @@
         </div>
       </div>
       <div class="content">
-        <div class="stats-row" id="reformas-stats" style="grid-template-columns:repeat(4,1fr);"></div>
+        <div class="stats-row u-grid-4" id="reformas-stats"></div>
         <div class="toolbar">
           <div class="search-wrap">
             <span class="search-icon">🔍</span>
             <input type="text" class="search-input" placeholder="Buscar por peça ou fornecedor..." id="search-envios" oninput="debouncedRenderEnvios();toggleSearchIcon(this)">
           </div>
-          <select style="width:150px;" id="filter-tipo-envio" onchange="renderEnvios()">
+          <select id="filter-tipo-envio" onchange="renderEnvios()" class="u-width-150">
             <option value="">Todos os tipos</option>
             <option value="Reforma">Reforma</option>
             <option value="Conserto">Conserto</option>
             <option value="Garantia">Garantia</option>
           </select>
-          <select style="width:170px;" id="filter-status-envio" onchange="renderEnvios()">
+          <select id="filter-status-envio" onchange="renderEnvios()" class="u-width-170">
             <option value="">Todos os status</option>
             <option value="Enviado">Enviado</option>
             <option value="Em andamento">Em andamento</option>
@@ -198,7 +206,7 @@
         </div>
       </div>
       <div class="content">
-        <div class="stats-row" id="baixas-stats" style="grid-template-columns:repeat(3,1fr);"></div>
+        <div class="stats-row u-grid-3" id="baixas-stats"></div>
         <div class="toolbar">
           <div class="search-wrap">
             <span class="search-icon">📦</span>
@@ -211,15 +219,15 @@
         </div>
         <div class="stats-row" id="frota-baixas-stats" style="display:none;grid-template-columns:repeat(3,1fr);"></div>
         <div class="toolbar">
-          <input type="date" id="filter-baixa-de" aria-label="Data inicial das baixas" style="width:150px;" onchange="baixasPagina=1;renderBaixas()" title="De">
-          <input type="date" id="filter-baixa-ate" aria-label="Data final das baixas" style="width:150px;" onchange="baixasPagina=1;renderBaixas()" title="Até">
-          <select id="filter-baixa-status" aria-label="Filtrar baixas por status" style="width:170px;" onchange="baixasPagina=1;renderBaixas()">
+          <input type="date" id="filter-baixa-de" aria-label="Data inicial das baixas" onchange="baixasPagina=1;renderBaixas()" title="De" class="u-width-150">
+          <input type="date" id="filter-baixa-ate" aria-label="Data final das baixas" onchange="baixasPagina=1;renderBaixas()" title="Até" class="u-width-150">
+          <select id="filter-baixa-status" aria-label="Filtrar baixas por status" onchange="baixasPagina=1;renderBaixas()" class="u-width-170">
             <option value="">Todos os status</option>
             <option value="Realizado">Somente realizadas</option>
             <option value="Pendente">Somente pendentes</option>
             <option value="Extra-Saldo">Somente extra-saldo</option>
           </select>
-          <select id="filter-baixa-agrupar" aria-label="Agrupar baixas" style="width:230px;" onchange="baixasPagina=1;renderBaixas()">
+          <select id="filter-baixa-agrupar" aria-label="Agrupar baixas" onchange="baixasPagina=1;renderBaixas()" class="u-width-230">
             <option value="codigo">Agrupar por código (padrão)</option>
             <option value="data">Ordenar por data (mais recente)</option>
             <option value="onibus">Agrupar e comparar por ônibus/frota</option>
@@ -240,7 +248,7 @@
             <div class="empty-sub">Registre a saída de uma peça do estoque para um ônibus específico.</div>
           </div>
         </div>
-        <div id="baixas-pagination" style="display:flex;gap:8px;align-items:center;justify-content:center;margin-top:14px;"></div>
+        <div id="baixas-pagination" class="u-layout-04"></div>
       </div>
     </div>
 
@@ -277,14 +285,14 @@
       </div>
       <div class="content">
         <div class="toolbar">
-          <span style="font-size:12.5px;color:var(--muted);white-space:nowrap;">📅 Ver gasto do mês:</span>
-          <input type="month" id="rel-mes" aria-label="Mês dos relatórios" style="width:170px;flex:none;" onchange="renderRelatorios()">
+          <span class="u-layout-08">📅 Ver gasto do mês:</span>
+          <input type="month" id="rel-mes" aria-label="Mês dos relatórios" onchange="renderRelatorios()" class="u-layout-09">
           <button class="btn btn-ghost btn-sm" onclick="document.getElementById('rel-mes').value='';renderRelatorios();">Ver todos os períodos</button>
           <button class="btn btn-ghost btn-sm" onclick="exportarEnviosCSV()">↓ Envios CSV</button>
           <button class="btn btn-ghost btn-sm" onclick="exportarRankingCSV()">↓ Fornecedores CSV</button>
         </div>
-        <div class="stats-row" id="rel-stats" style="grid-template-columns:repeat(4,1fr);"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;" id="rel-cols">
+        <div class="stats-row u-grid-4" id="rel-stats"></div>
+        <div id="rel-cols" class="u-layout-10">
           <div class="card">
             <div class="section-title">💰 Custo médio por tipo de envio</div>
             <div id="rel-tipo-chart"></div>
@@ -296,7 +304,7 @@
         </div>
         <div class="card">
           <div class="section-title">🏭 Ranking de Fornecedores</div>
-          <div class="table-wrap" style="border:none;">
+          <div class="table-wrap u-layout-11">
             <table>
               <thead><tr><th>Fornecedor</th><th>Envios</th><th>Valor Total</th><th>Valor Médio</th><th>Pendentes</th></tr></thead>
               <tbody id="rel-forn-tbody"></tbody>
@@ -318,7 +326,7 @@
             <span class="search-icon">🔍</span>
             <input type="text" class="search-input" placeholder="Buscar por usuário ou descrição..." id="search-log" oninput="debouncedRenderLog();toggleSearchIcon(this)">
           </div>
-          <select style="width:170px;" id="filter-log-tipo" onchange="renderLog()">
+          <select id="filter-log-tipo" onchange="renderLog()" class="u-width-170">
             <option value="">Todos os tipos</option>
             <option value="acesso">Acesso</option>
             <option value="cadastro">Cadastro / Edição</option>
@@ -327,8 +335,8 @@
             <option value="retorno">Retorno</option>
             <option value="exclusao">Exclusão</option>
           </select>
-          <input type="date" id="filter-log-de" style="width:150px;" onchange="renderLog()" title="De">
-          <input type="date" id="filter-log-ate" style="width:150px;" onchange="renderLog()" title="Até">
+          <input type="date" id="filter-log-de" onchange="renderLog()" title="De" class="u-width-150">
+          <input type="date" id="filter-log-ate" onchange="renderLog()" title="Até" class="u-width-150">
         </div>
         <div class="table-wrap">
           <table>
@@ -378,8 +386,8 @@
 </div>
 
 <!-- Carregamento -->
-<div id="loading-overlay" style="position:fixed;inset:0;background:var(--black);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
-  <div class="logo-badge" style="width:52px;height:52px;">
+<div id="loading-overlay" class="u-layout-12">
+  <div class="logo-badge u-layout-13">
     <svg width="27" height="27" viewBox="0 0 24 24" fill="none">
       <path d="M12 2 L14 5 L18 4 L18 8 L21 10 L19 13 L21 16 L18 18 L18 22 L14 21 L12 24 L10 21 L6 22 L6 18 L3 16 L5 13 L3 10 L6 8 L6 4 L10 5 Z" fill="#1a1005"/>
       <circle cx="12" cy="13" r="4.5" fill="#1a1005"/>
@@ -387,7 +395,7 @@
     </svg>
   </div>
   <div class="logo-mark">GestãoPeças</div>
-  <div style="font-size:12.5px;color:var(--muted);" id="loading-text">Carregando...</div>
+  <div id="loading-text" class="u-layout-14">Carregando...</div>
 </div>
 
 <!-- Login -->
@@ -405,24 +413,24 @@
 
     <div id="ident-panel-demo" style="display:none;">
       <div class="login-demo-note"><span class="login-demo-dot" aria-hidden="true"></span><div><strong>Ambiente de demonstração</strong><span>Dados fictícios, sem senha e sem conexão com o banco de produção.</span></div></div>
-      <div class="form-group" style="margin-bottom:16px;">
+      <div class="form-group u-mb-16">
         <label for="login-demo-usuario">Entrar como</label>
         <select id="login-demo-usuario" aria-label="Escolher perfil de demonstração"></select>
       </div>
-      <button class="btn btn-primary" style="width:100%;" onclick="loginDemo()">Entrar</button>
+      <button class="btn btn-primary u-layout-16" onclick="loginDemo()">Entrar</button>
     </div>
 
     <div id="ident-panel-firebase" style="display:none;">
-      <div class="form-group" style="margin-bottom:12px;">
+      <div class="form-group u-mb-12">
         <label for="login-email">E-mail</label>
         <input type="email" id="login-email" placeholder="voce@exemplo.com" autocomplete="username">
       </div>
-      <div class="form-group" style="margin-bottom:16px;">
+      <div class="form-group u-mb-16">
         <label for="login-senha">Senha</label>
         <input type="password" id="login-senha" placeholder="Sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')loginUsuario();">
       </div>
-      <button class="btn btn-primary" style="width:100%;" onclick="loginUsuario()">Entrar</button>
-      <div style="text-align:center;margin-top:10px;"><button type="button" class="link-button" onclick="recuperarSenha()">Esqueci minha senha</button></div>
+      <button class="btn btn-primary u-layout-16" onclick="loginUsuario()">Entrar</button>
+      <div class="u-layout-18"><button type="button" class="link-button" onclick="recuperarSenha()">Esqueci minha senha</button></div>
     </div>
 
     <div id="ident-erro" class="login-error" role="alert"></div>
@@ -532,7 +540,7 @@
           <input type="date" id="entrada-data">
         </div>
       </div>
-      <div style="font-size:11.5px;color:var(--muted);margin-top:14px;">O custo médio da peça é recalculado automaticamente com base em todas as entradas registradas e seus respectivos valores unitários.</div>
+      <div class="u-layout-19">O custo médio da peça é recalculado automaticamente com base em todas as entradas registradas e seus respectivos valores unitários.</div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-entrada')">Cancelar</button>
@@ -680,7 +688,7 @@
             <input type="hidden" id="baixa-peca">
             <div class="combo-dropdown" id="baixa-peca-dropdown"></div>
           </div>
-          <div id="baixa-peca-estoque-info" style="font-size:11.5px;color:var(--muted);margin-top:4px;"></div>
+          <div id="baixa-peca-estoque-info" class="u-layout-20"></div>
         </div>
         <div class="form-group">
           <label for="baixa-onibus">Código do Ônibus *</label>
@@ -725,22 +733,22 @@
 
 <!-- Formulário de usuário -->
 <div class="modal-overlay" id="modal-usuario" role="dialog" aria-modal="true" aria-labelledby="usuario-modal-title">
-  <div class="modal" style="width:440px;">
+  <div class="modal u-width-440">
     <div class="modal-header">
       <div class="modal-title" id="usuario-modal-title">Novo Usuário</div>
       <button type="button" class="close-btn" aria-label="Fechar janela" onclick="closeModal('modal-usuario')">✕</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="usuario-id">
-      <div class="form-group" style="margin-bottom:14px;">
+      <div class="form-group u-mb-14">
         <label for="usuario-nome">Nome completo *</label>
         <input type="text" id="usuario-nome" placeholder="Ex: Usuário Demo">
       </div>
-      <div class="form-group" style="margin-bottom:14px;">
+      <div class="form-group u-mb-14">
         <label for="usuario-email">E-mail *</label>
         <input type="email" id="usuario-email" placeholder="usuario@exemplo.com">
       </div>
-      <div class="form-group" style="margin-bottom:14px;" id="usuario-senha-grupo">
+      <div class="form-group u-mb-14" id="usuario-senha-grupo">
         <label for="usuario-senha">Senha temporária * (mín. 8 caracteres)</label>
         <input type="password" id="usuario-senha" autocomplete="new-password">
       </div>
@@ -751,10 +759,10 @@
           <option value="admin">Administrador (usuários e log)</option>
         </select>
       </div>
-      <div style="font-size:11.5px;color:var(--muted);margin-top:12px;">Somente administradores criam, editam e excluem usuários. Senhas são gerenciadas pelo Firebase Authentication e nunca ficam no banco de dados.</div>
+      <div class="u-layout-23">Somente administradores criam, editam e excluem usuários. Senhas são gerenciadas pelo Firebase Authentication e nunca ficam no banco de dados.</div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" id="usuario-reset-btn" onclick="redefinirSenhaUsuario()" style="margin-right:auto;">✉ Enviar redefinição de senha</button>
+      <button class="btn btn-ghost u-layout-24" id="usuario-reset-btn" onclick="redefinirSenhaUsuario()">✉ Enviar redefinição de senha</button>
       <button class="btn btn-ghost" onclick="closeModal('modal-usuario')">Cancelar</button>
       <button class="btn btn-primary" id="usuario-salvar-btn" onclick="salvarUsuario()">Salvar</button>
     </div>
@@ -763,7 +771,7 @@
 
 <!-- Mover para Curva A -->
 <div class="modal-overlay" id="modal-curvaa-mover" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-curvaa-mover">
-  <div class="modal" style="width:460px;">
+  <div class="modal u-width-460">
     <div class="modal-header">
       <div class="modal-title" id="titulo-modal-curvaa-mover">Mover para Curva A</div>
       <button type="button" class="close-btn" aria-label="Fechar janela" onclick="closeModal('modal-curvaa-mover')">✕</button>
@@ -773,8 +781,8 @@
       <div class="form-grid">
         <div class="form-group span-2">
           <span class="form-label">Peça</span>
-          <div id="curvaa-peca-nome" style="font-weight:600;"></div>
-          <div id="curvaa-peca-info" style="font-size:11.5px;color:var(--muted);margin-top:4px;"></div>
+          <div id="curvaa-peca-nome" class="u-layout-26"></div>
+          <div id="curvaa-peca-info" class="u-layout-20"></div>
         </div>
         <div class="form-group span-2">
           <label for="curvaa-quantidade">Quantidade a mover *</label>
@@ -785,7 +793,7 @@
           <input type="text" id="curvaa-motivo" placeholder="Ex.: sem saída há mais de 12 meses">
         </div>
       </div>
-      <div style="font-size:11.5px;color:var(--muted);margin-top:14px;">A quantidade movida sai de "Peças em Estoque". Se você mover todo o saldo, a peça deixa de aparecer no estoque principal. Você pode devolvê-la a qualquer momento pela aba Curva A.</div>
+      <div class="u-layout-19">A quantidade movida sai de "Peças em Estoque". Se você mover todo o saldo, a peça deixa de aparecer no estoque principal. Você pode devolvê-la a qualquer momento pela aba Curva A.</div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-curvaa-mover')">Cancelar</button>
@@ -796,7 +804,7 @@
 
 <!-- Confirmação -->
 <div class="modal-overlay" id="modal-confirm" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-confirm">
-  <div class="modal" style="width:400px;">
+  <div class="modal u-width-400">
     <div class="modal-header">
       <div class="modal-title" id="titulo-modal-confirm">Confirmar</div>
       <button type="button" class="close-btn" aria-label="Fechar janela" onclick="closeModal('modal-confirm')">✕</button>
@@ -815,21 +823,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-database-compat.js"></script>
-<script src="js/firebase-config.js"></script>
-<script src="js/firebase-config.local.js" onerror="this.remove()"></script>
+<script src="src/core/firebase-config.js"></script>
+<script src="src/core/firebase-config.local.js" onerror="this.remove()"></script>
 <script src="data/demo-data.js"></script>
-<script src="js/utils.js"></script>
-<script src="js/firebase.js"></script>
-<script src="js/manutencao.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/auditoria.js"></script>
-<script src="js/usuarios.js"></script>
-<script src="js/estoque.js"></script>
-<script src="js/fornecedores.js"></script>
-<script src="js/reformas.js"></script>
-<script src="js/baixas.js"></script>
-<script src="js/dashboard.js"></script>
-<script src="js/exportacao.js"></script>
-<script src="js/app.js"></script>
+<script src="dist/app.js"></script>
 </body>
 </html>

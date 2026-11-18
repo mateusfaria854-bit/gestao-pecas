@@ -1,13 +1,26 @@
+import { ITENS_POR_PAGINA, STATUS_BAIXA_BADGE, STATUS_BAIXA_LABEL, escapeHtml, fmtDate, jsArg, todayISO, uid } from '../../utils/helpers.js';
+import { db, saveDB } from '../../services/data-store.js';
+import { verificarOSAbertaManutencao } from '../../services/maintenance.js';
+import { logAction } from '../auditoria/ui.js';
+import { comboItens, comboLimpar } from '../estoque/ui.js';
+import { pecaNome } from '../reformas/ui.js';
+import { statCard } from '../dashboard/ui.js';
+import { renderAll } from '../../core/app.js';
+import { quantidadeValida } from '../../domain/stock.js';
+import { calcularSaldosBaixa } from '../../domain/baixas.js';
+import { closeModal, openModal, showConfirm } from '../../components/modal.js';
+import { notifyError } from '../../components/notifications.js';
+import { uiState } from '../../core/state.js';
 
-function populateBaixaPecaCombo(){
+export function populateBaixaPecaCombo(){
   comboItens['baixa'] = [...db.pecas].filter(p=>p.status!=='Baixa').sort((a,b)=>a.nome.localeCompare(b.nome));
 }
-function atualizarBaixaEstoqueInfo(){
+export function atualizarBaixaEstoqueInfo(){
   const info = document.getElementById('baixa-peca-estoque-info');
   const p = db.pecas.find(x=>x.id===document.getElementById('baixa-peca').value);
   info.textContent = p ? `Estoque atual: ${p.quantidade} ${p.unidade||'un'}` : '';
 }
-function openBaixaModal(id){
+export function openBaixaModal(id){
   populateBaixaPecaCombo();
   comboLimpar('baixa');
   document.getElementById('baixa-id').value = id||'';
@@ -37,7 +50,7 @@ function openBaixaModal(id){
   atualizarBaixaEstoqueInfo();
   openModal('modal-baixa');
 }
-async function saveBaixa(){
+export async function saveBaixa(){
   const pecaId = document.getElementById('baixa-peca').value;
   const onibus = document.getElementById('baixa-onibus').value.trim();
   const qtdRaw = document.getElementById('baixa-qtd').value.trim();
@@ -55,24 +68,9 @@ async function saveBaixa(){
     notifyError('Status da baixa inválido.'); return;
   }
 
-  // Ao editar, o saldo da peça original deve ser estornado.
-  // Valida os saldos antes de aplicar as alterações.
-  const saldos = new Map();
-  const antigosPeca = antiga ? db.pecas.find(p => p.id === antiga.pecaId) : null;
-  if(antiga && (antiga.statusBaixa || 'Realizado') === 'Realizado' && !antigosPeca){
-    notifyError('A peça da baixa original não existe mais no estoque. Não é possível estornar automaticamente.'); return;
-  }
-  if(antigosPeca) saldos.set(antigosPeca.id, Number(antigosPeca.quantidade));
-  saldos.set(peca.id, Number(peca.quantidade));
-  if(antiga && (antiga.statusBaixa || 'Realizado') === 'Realizado'){
-    const saldoAntigo = saldos.get(antigosPeca.id);
-    saldos.set(antigosPeca.id, saldoAntigo + Number(antiga.quantidade));
-  }
-  if(statusBaixa === 'Realizado') saldos.set(peca.id, saldos.get(peca.id) - qtd);
-  if([...saldos.values()].some(v => !Number.isFinite(v) || v < -1e-9)){
-    notifyError('Saldo insuficiente para registrar a baixa como Realizado. Verifique a quantidade ou utilize Extra-Saldo, que não desconta estoque.');
-    return;
-  }
+  let saldos;
+  try { saldos = calcularSaldosBaixa(db.pecas, antiga, pecaId, qtd, statusBaixa); }
+  catch (error) { notifyError(error.message); return; }
 
   const btnSalvar = document.getElementById('baixa-submit-btn');
   const textoOriginalBtn = btnSalvar ? btnSalvar.textContent : '';
@@ -110,7 +108,7 @@ async function saveBaixa(){
   closeModal('modal-baixa');
   renderAll();
 }
-function deleteBaixa(id){
+export function deleteBaixa(id){
   const b = db.baixas.find(x=>x.id===id);
   showConfirm('Excluir este registro de baixa? Se a baixa estava marcada como "Realizado", a quantidade será devolvida ao estoque. O histórico continuará no log de atividades.', ()=>{
     const peca = db.pecas.find(p=>p.id===b.pecaId);
@@ -124,22 +122,22 @@ function deleteBaixa(id){
     renderAll();
   });
 }
-let baixasExpandedCodigos = new Set();
-let ultimoGruposCodigoKeys = [];
-function toggleBaixaCodigo(codigo){
+export let baixasExpandedCodigos = new Set();
+export let ultimoGruposCodigoKeys = [];
+export function toggleBaixaCodigo(codigo){
   if(baixasExpandedCodigos.has(codigo)) baixasExpandedCodigos.delete(codigo);
   else baixasExpandedCodigos.add(codigo);
   renderBaixas();
 }
-function expandirTodosCodigos(){
+export function expandirTodosCodigos(){
   ultimoGruposCodigoKeys.forEach(c=> baixasExpandedCodigos.add(c));
   renderBaixas();
 }
-function recolherTodosCodigos(){
+export function recolherTodosCodigos(){
   baixasExpandedCodigos.clear();
   renderBaixas();
 }
-function filtrarBaixas(){
+export function filtrarBaixas(){
   const searchProduto = (document.getElementById('search-baixas-produto').value||'').toLowerCase();
   const searchFrota = (document.getElementById('search-baixas-frota').value||'').toLowerCase();
   const de = document.getElementById('filter-baixa-de').value;
@@ -166,7 +164,7 @@ function filtrarBaixas(){
     return true;
   });
 }
-function renderBaixas(){
+export function renderBaixas(){
   const agrupar = document.getElementById('filter-baixa-agrupar').value;
   const searchFrota = (document.getElementById('search-baixas-frota').value||'').toLowerCase();
   const pecaPorId = new Map(db.pecas.map(p=>[p.id,p]));
@@ -261,9 +259,9 @@ function renderBaixas(){
   } else {
     list.sort((a,b)=> (b.data||'').localeCompare(a.data||''));
     const totalPaginasFlat = Math.max(1, Math.ceil(list.length / ITENS_POR_PAGINA));
-    if(baixasPagina > totalPaginasFlat) baixasPagina = totalPaginasFlat;
-    if(baixasPagina < 1) baixasPagina = 1;
-    const inicioFlat = (baixasPagina-1) * ITENS_POR_PAGINA;
+    if(uiState.baixasPagina > totalPaginasFlat) uiState.baixasPagina = totalPaginasFlat;
+    if(uiState.baixasPagina < 1) uiState.baixasPagina = 1;
+    const inicioFlat = (uiState.baixasPagina-1) * ITENS_POR_PAGINA;
     list.slice(inicioFlat, inicioFlat + ITENS_POR_PAGINA).forEach(b=> frag.appendChild(linhaBaixa(b)));
   }
   tbody.innerHTML = '';
@@ -275,11 +273,11 @@ function renderBaixas(){
   } else {
     const totalPaginas = Math.max(1, Math.ceil(list.length / ITENS_POR_PAGINA));
     pagWrap.innerHTML = `
-      <button class="pagination-btn" ${baixasPagina<=1?'disabled':''} onclick="baixasPagina=1;renderBaixas()">« Primeira</button>
-      <button class="pagination-btn" ${baixasPagina<=1?'disabled':''} onclick="baixasPagina--;renderBaixas()">‹ Anterior</button>
-      <span class="pagination-info">Página ${baixasPagina} de ${totalPaginas} · ${list.length} baixa(s)</span>
-      <button class="pagination-btn" ${baixasPagina>=totalPaginas?'disabled':''} onclick="baixasPagina++;renderBaixas()">Próxima ›</button>
-      <button class="pagination-btn" ${baixasPagina>=totalPaginas?'disabled':''} onclick="baixasPagina=${totalPaginas};renderBaixas()">Última »</button>
+      <button class="pagination-btn" ${uiState.baixasPagina<=1?'disabled':''} onclick="uiState.baixasPagina=1;renderBaixas()">« Primeira</button>
+      <button class="pagination-btn" ${uiState.baixasPagina<=1?'disabled':''} onclick="uiState.baixasPagina--;renderBaixas()">‹ Anterior</button>
+      <span class="pagination-info">Página ${uiState.baixasPagina} de ${totalPaginas} · ${list.length} baixa(s)</span>
+      <button class="pagination-btn" ${uiState.baixasPagina>=totalPaginas?'disabled':''} onclick="uiState.baixasPagina++;renderBaixas()">Próxima ›</button>
+      <button class="pagination-btn" ${uiState.baixasPagina>=totalPaginas?'disabled':''} onclick="uiState.baixasPagina=${totalPaginas};renderBaixas()">Última »</button>
     `;
   }
 
@@ -316,4 +314,3 @@ function renderBaixas(){
     frotaStatsEl.innerHTML = '';
   }
 }
-

@@ -1,5 +1,7 @@
+import { LOG_BADGE, LOG_TIPO_LABEL, escapeHtml, uid } from '../../utils/helpers.js';
+import { Dados, db } from '../../services/data-store.js';
 
-function renderLog(){
+export function renderLog(){
   const search = (document.getElementById('search-log').value||'').toLowerCase();
   const tipoF = document.getElementById('filter-log-tipo').value;
   const de = document.getElementById('filter-log-de').value;
@@ -33,7 +35,7 @@ function renderLog(){
   });
 }
 
-function logAction(tipo, titulo, detalhes){
+export function logAction(tipo, titulo, detalhes){
   const perfil = window.perfilAtual || {};
   return Dados.registrarLog({
     timestamp: new Date().toISOString(),

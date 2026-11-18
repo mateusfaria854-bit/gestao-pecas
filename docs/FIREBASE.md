@@ -9,7 +9,7 @@ Para usar um backend real, crie um **projeto Firebase separado, exclusivo para d
 3. Crie um **Realtime Database**.
 
 ## 2. Configurar o front-end
-Copie `js/firebase-config.example.js` para `js/firebase-config.local.js` e preencha com a configuração do seu app web.
+Copie `src/core/firebase-config.example.js` para `src/core/firebase-config.local.js` e preencha com a configuração do seu app web.
 Esse arquivo está no `.gitignore`. A configuração web do Firebase não é um segredo por si só; a segurança vem das regras abaixo.
 
 ## 3. Publicar as Security Rules

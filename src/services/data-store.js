@@ -1,16 +1,21 @@
+import { uid } from '../utils/helpers.js';
+import { isAdmin, sair } from '../features/auth/ui.js';
+import { renderAll } from '../core/app.js';
+import { notificar, notifyError, notifySuccess } from '../components/notifications.js';
+
 /* Backends de demonstração (em memória) e Firebase. */
-const APP_CONFIG = Object.assign({ validarOSAberta: true }, window.APP_CONFIG || {});
-const FIREBASE_CONFIG = window.FIREBASE_CONFIG || null;
-const MODO_DEMO = !FIREBASE_CONFIG || !FIREBASE_CONFIG.apiKey || /^(SUA_|YOUR_)/i.test(FIREBASE_CONFIG.apiKey) || typeof firebase === 'undefined';
+export const APP_CONFIG = Object.assign({ validarOSAberta: true }, window.APP_CONFIG || {});
+export const FIREBASE_CONFIG = window.FIREBASE_CONFIG || null;
+export const MODO_DEMO = !FIREBASE_CONFIG || !FIREBASE_CONFIG.apiKey || /^(SUA_|YOUR_)/i.test(FIREBASE_CONFIG.apiKey) || typeof firebase === 'undefined';
 
-const COLECOES = ['pecas', 'curvaA', 'fornecedores', 'envios', 'baixas'];
-const PERFIS_VALIDOS = ['admin', 'user'];
+export const COLECOES = ['pecas', 'curvaA', 'fornecedores', 'envios', 'baixas'];
+export const PERFIS_VALIDOS = ['admin', 'user'];
 
-let db = { pecas: [], curvaA: [], fornecedores: [], envios: [], baixas: [], logs: [], usuarios: [] };
+export let db = { pecas: [], curvaA: [], fornecedores: [], envios: [], baixas: [], logs: [], usuarios: [] };
 
-function clonar(v){ return JSON.parse(JSON.stringify(v)); }
+export function clonar(v){ return JSON.parse(JSON.stringify(v)); }
 
-function paraArray(val, colecao){
+export function paraArray(val, colecao){
   if(!val) return [];
   if(Array.isArray(val)) return val.filter(Boolean);
   const itens = Object.entries(val).map(([k, v]) => (colecao === 'logs' || colecao === 'usuarios') ? { id: k, ...v } : v);
@@ -18,7 +23,7 @@ function paraArray(val, colecao){
   return itens;
 }
 
-function criarBackendFirebase(){
+export function criarBackendFirebase(){
   let auth, raiz, appAux = null;
   return {
     modo: 'firebase',
@@ -67,7 +72,7 @@ function criarBackendFirebase(){
   };
 }
 
-function criarBackendDemo(){
+export function criarBackendDemo(){
   let store = null;
   let perfilAtualDemo = null;
   const ouvintes = {};      // colecao -> [callbacks]
@@ -121,13 +126,13 @@ function criarBackendDemo(){
   };
 }
 
-const Dados = MODO_DEMO ? criarBackendDemo() : criarBackendFirebase();
+export const Dados = MODO_DEMO ? criarBackendDemo() : criarBackendFirebase();
 
-let salvandoAgora = false;
-const _ultimoSalvo = {};
+export let salvandoAgora = false;
+export const _ultimoSalvo = {};
 
 // No Firebase, a coleção só é marcada como salva após a confirmação da gravação.
-function saveDB(){
+export function saveDB(){
   const pendentes = COLECOES.filter(c => JSON.stringify(db[c]) !== _ultimoSalvo[c]);
   if(!pendentes.length) return Promise.resolve(true);
   salvandoAgora = true;
@@ -146,13 +151,13 @@ function saveDB(){
     .finally(() => { salvandoAgora = false; });
 }
 
-function normalizarDb(){
+export function normalizarDb(){
   COLECOES.concat(['logs', 'usuarios']).forEach(k => { if(!Array.isArray(db[k])) db[k] = []; });
   db.pecas.forEach(p => { if(!Array.isArray(p.entradas)) p.entradas = []; });
 }
 
-let _desinscrever = [];
-function iniciarSincronizacao(aoConectar){
+export let _desinscrever = [];
+export function iniciarSincronizacao(aoConectar){
   _desinscrever.forEach(f => f());
   _desinscrever = [];
   const colecoes = COLECOES.slice();

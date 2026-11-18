@@ -7,20 +7,25 @@ on:
 jobs:
   testes:
     runs-on: ubuntu-24.04
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Gerar bundle e executar testes unitários
+        run: |
+          npm run build
+          npm test
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Instalar Playwright e navegador
+      - name: Instalar Playwright e Chromium
         run: |
           python -m pip install --upgrade pip
           python -m pip install playwright==1.57.0
           python -m playwright install --with-deps chromium
-      - name: Executar testes
-        env:
-          CHROMIUM_BIN: ''
+      - name: Testes integrados de regressão
         run: |
           python tests/test_demo.py
           python tests/test_melhorias.py

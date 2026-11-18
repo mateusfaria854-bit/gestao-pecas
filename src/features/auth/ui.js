@@ -1,18 +1,23 @@
+import { escapeHtml, uid } from '../../utils/helpers.js';
+import { Dados, _desinscrever, iniciarSincronizacao } from '../../services/data-store.js';
+import { logAction } from '../auditoria/ui.js';
+import { goPage } from '../../core/app.js';
+
 /* Autorização efetiva no Firebase depende das Security Rules; ocultar telas não restringe acesso aos dados. */
 window.perfilAtual = null;
 window.usuarioAtual = null;   // nome de exibição, usado nos registros e no log
 
-const PERMISSOES = {
+export const PERMISSOES = {
   verLog:            ['admin'],
   gerenciarUsuarios: ['admin'],
   operarEstoque:     ['admin', 'user']
 };
-function temPermissao(p){ return !!window.perfilAtual && PERMISSOES[p].includes(window.perfilAtual.role); }
-function isAdmin(){ return !!window.perfilAtual && window.perfilAtual.role === 'admin'; }
-function podeVerLog(){ return temPermissao('verLog'); }
-function podeGerenciarUsuarios(){ return temPermissao('gerenciarUsuarios'); }
+export function temPermissao(p){ return !!window.perfilAtual && PERMISSOES[p].includes(window.perfilAtual.role); }
+export function isAdmin(){ return !!window.perfilAtual && window.perfilAtual.role === 'admin'; }
+export function podeVerLog(){ return temPermissao('verLog'); }
+export function podeGerenciarUsuarios(){ return temPermissao('gerenciarUsuarios'); }
 
-function mostrarLogin(mensagem){
+export function mostrarLogin(mensagem){
   document.getElementById('loading-overlay').style.display = 'none';
   document.getElementById('ident-overlay').style.display = 'flex';
   const demo = Dados.modo === 'demo';
@@ -26,7 +31,7 @@ function mostrarLogin(mensagem){
   document.getElementById('ident-erro').textContent = mensagem || '';
 }
 
-async function loginUsuario(){
+export async function loginUsuario(){
   const erroEl = document.getElementById('ident-erro');
   erroEl.textContent = '';
   const email = document.getElementById('login-email').value.trim();
@@ -40,12 +45,12 @@ async function loginUsuario(){
     erroEl.textContent = 'E-mail ou senha inválidos.';
   }
 }
-async function loginDemo(){
+export async function loginDemo(){
   const uidSel = document.getElementById('login-demo-usuario').value;
   try{ await Dados.entrar({ uid: uidSel }); }
   catch(e){ document.getElementById('ident-erro').textContent = e.message; }
 }
-async function recuperarSenha(){
+export async function recuperarSenha(){
   const erroEl = document.getElementById('ident-erro');
   const email = document.getElementById('login-email').value.trim();
   if(!email){ erroEl.textContent = 'Informe seu e-mail para receber o link de redefinição.'; return; }
@@ -55,7 +60,7 @@ async function recuperarSenha(){
   setTimeout(() => { erroEl.style.color = ''; }, 6000);
 }
 
-function aoMudarSessao(perfil, mensagem){
+export function aoMudarSessao(perfil, mensagem){
   if(!perfil){
     window.perfilAtual = null;
     window.usuarioAtual = null;
@@ -77,13 +82,13 @@ function aoMudarSessao(perfil, mensagem){
   });
 }
 
-async function sair(){
+export async function sair(){
   try{ await logAction('acesso', 'Saída do sistema', `Usuário: ${window.usuarioAtual || 'Desconhecido'}`); } catch(e){}
   await Dados.sair();
   if(Dados.modo === 'firebase') location.reload();
 }
 
-function atualizarRodapeUsuario(){
+export function atualizarRodapeUsuario(){
   const papel = isAdmin() ? 'administrador' : 'usuário';
   document.getElementById('sidebar-footer').innerHTML =
     (Dados.modo === 'demo' ? '<div style="color:var(--accent);margin-bottom:4px;">Modo demonstração</div>' : '') +

@@ -8,4 +8,4 @@ node_modules/
 .vscode/
 .idea/
 # Configuração local do Firebase (nunca publicar)
-js/firebase-config.local.js
+src/core/firebase-config.local.js

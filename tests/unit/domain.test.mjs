@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { quantidadeValida, valorValido, custoMedioPeca } from '../../src/domain/stock.js';
+import { calcularSaldosBaixa } from '../../src/domain/baixas.js';
+import { celulaCsv } from '../../src/domain/csv.js';
+const pecas=()=>[{id:'A',quantidade:25,unidade:'un'},{id:'B',quantidade:10,unidade:'un'}];
+test('quantidade valida unidade',()=>{assert.equal(quantidadeValida(2,'un'),true);assert.equal(quantidadeValida(-2,'un'),false);assert.equal(quantidadeValida(1.5,'un'),false);assert.equal(quantidadeValida(1.5,'kg'),true);assert.equal(quantidadeValida(0,'un',true),true);assert.equal(valorValido(-1),false);});
+test('média ponderada não altera entradas',()=>{const p={valor:22,entradas:[{quantidade:2,valorUnitario:10},{quantidade:3,valorUnitario:20}]};const before=JSON.stringify(p.entradas);assert.equal(custoMedioPeca(p),16);assert.equal(JSON.stringify(p.entradas),before);p.valorAjustado=41;assert.equal(custoMedioPeca(p),41);});
+test('baixa valida saldo sem mutar',()=>{const p=pecas();assert.equal(calcularSaldosBaixa(p,null,'A',2,'Realizado').get('A'),23);assert.equal(p[0].quantidade,25);});
+test('editar baixa restaura saldo anterior',()=>{const p=pecas();p[0].quantidade=23;const s=calcularSaldosBaixa(p,{pecaId:'A',quantidade:2,statusBaixa:'Realizado'},'B',1,'Realizado');assert.equal(s.get('A'),25);assert.equal(s.get('B'),9);});
+test('rejeita saldo insuficiente',()=>{assert.throws(()=>calcularSaldosBaixa(pecas(),null,'A',999,'Realizado'),/Saldo insuficiente/);});
+test('pendente não movimenta e valores inválidos falham',()=>{assert.equal(calcularSaldosBaixa(pecas(),null,'A',2,'Pendente').get('A'),25);assert.throws(()=>calcularSaldosBaixa(pecas(),null,'A',-1,'Realizado'),/Quantidade/);assert.throws(()=>calcularSaldosBaixa(pecas(),null,'A',1,'Errado'),/Status/);});
+test('CSV neutraliza fórmulas',()=>{assert.equal(celulaCsv('=SUM(1,2)'),'"\'=SUM(1,2)"');assert.equal(celulaCsv('João "A"'),'"João ""A"""');});

@@ -1,5 +1,13 @@
+import { escapeHtml, fmtDate, jsArg, normalizarNome, todayISO, uid } from '../../utils/helpers.js';
+import { Dados, PERFIS_VALIDOS, db } from '../../services/data-store.js';
+import { podeGerenciarUsuarios } from '../auth/ui.js';
+import { logAction } from '../auditoria/ui.js';
+import { renderAll } from '../../core/app.js';
+import { closeModal, openModal, showConfirm } from '../../components/modal.js';
+import { notifyError, notifySuccess } from '../../components/notifications.js';
+
 /* Perfis são protegidos pelas Security Rules no modo Firebase. */
-function renderUsuarios(){
+export function renderUsuarios(){
   if(!podeGerenciarUsuarios()) return;
   const search = normalizarNome(document.getElementById('search-usuarios').value || '');
   let list = [...(db.usuarios || [])];
@@ -22,7 +30,7 @@ function renderUsuarios(){
   document.getElementById('usuarios-empty').style.display = list.length ? 'none' : '';
 }
 
-function openUsuarioModal(id){
+export function openUsuarioModal(id){
   if(!podeGerenciarUsuarios()) return;
   const u = id ? (db.usuarios || []).find(x => x.id === id) : null;
   document.getElementById('usuario-id').value = u ? u.id : '';
@@ -37,7 +45,7 @@ function openUsuarioModal(id){
   openModal('modal-usuario');
 }
 
-async function salvarUsuario(){
+export async function salvarUsuario(){
   if(!podeGerenciarUsuarios()) return;
   const id = document.getElementById('usuario-id').value;
   const nome = document.getElementById('usuario-nome').value.trim();
@@ -77,7 +85,7 @@ async function salvarUsuario(){
   }
 }
 
-async function redefinirSenhaUsuario(){
+export async function redefinirSenhaUsuario(){
   if(!podeGerenciarUsuarios()) return;
   const u = (db.usuarios || []).find(x => x.id === document.getElementById('usuario-id').value);
   if(!u) return;
@@ -92,7 +100,7 @@ async function redefinirSenhaUsuario(){
   }
 }
 
-function deleteUsuario(id){
+export function deleteUsuario(id){
   if(!podeGerenciarUsuarios()) return;
   const u = (db.usuarios || []).find(x => x.id === id);
   if(!u) return;
