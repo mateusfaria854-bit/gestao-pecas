@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GestãoPeças · Sistema de Gestão de Almoxarifado</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+<div id="notificacoes" class="notificacoes" aria-live="polite" aria-relevant="additions"></div>
+<div class="app">
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+  <aside class="sidebar" id="sidebar" aria-label="Menu lateral">
+    <div class="hazard-strip"></div>
+    <div class="logo">
+      <div class="logo-badge">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2 L14 5 L18 4 L18 8 L21 10 L19 13 L21 16 L18 18 L18 22 L14 21 L12 24 L10 21 L6 22 L6 18 L3 16 L5 13 L3 10 L6 8 L6 4 L10 5 Z" fill="#1a1005"/>
+          <circle cx="12" cy="13" r="4.5" fill="#1a1005"/>
+          <circle cx="12" cy="13" r="2" fill="#eda934"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-mark">GestãoPeças</div>
+        <div class="logo-sub">Estoque & Reformas</div>
+      </div>
+    </div>
+    <nav aria-label="Navegação principal">
+      <div class="nav-label">Visão Geral</div>
+      <button type="button" class="nav-item active" data-page="dashboard" onclick="goPage('dashboard')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg><span>Dashboard</span></button>
+      <div class="nav-label">Estoque</div>
+      <button type="button" class="nav-item" data-page="estoque" onclick="goPage('estoque')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="M3 7v10l9 5 9-5V7"/><path d="M12 12v10"/></svg><span>Peças em Estoque</span></button>
+      <button type="button" class="nav-item" data-page="curvaa" onclick="goPage('curvaa')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 16 4-5 4 3 5-8"/></svg><span>Curva A · Peças Paradas</span></button>
+      <button type="button" class="nav-item" data-page="reformas" onclick="goPage('reformas')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a5 5 0 0 0-6.4 6.4l-5.6 5.6a2 2 0 0 0 2.8 2.8l5.6-5.6a5 5 0 0 0 6.4-6.4L14 12l-3-3 3.7-2.7Z"/></svg><span>Reformas & Envios</span></button>
+      <button type="button" class="nav-item" data-page="baixas" onclick="goPage('baixas')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v11"/><path d="M4 11h16"/><path d="M7 7h3m4 0h3"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg><span>Baixas para Ônibus</span></button>
+      <button type="button" class="nav-item" data-page="fornecedores" onclick="goPage('fornecedores')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="10" width="18" height="11" rx="1"/><path d="m3 10 6-6v6l6-6v6"/><path d="M7 15v2m5-2v2m5-2v2"/></svg><span>Fornecedores</span></button>
+      <div class="nav-label">Análises</div>
+      <button type="button" class="nav-item" data-page="relatorios" onclick="goPage('relatorios')"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 17v-4m5 4V9m5 8V6"/></svg><span>Relatórios</span></button>
+      <div class="nav-label" id="nav-label-auditoria" style="display:none;">Administração</div>
+      <button type="button" class="nav-item" id="nav-log" data-page="log" onclick="goPage('log')" style="display:none;"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M8 11h8m-8 4h8"/></svg><span>Log de Atividades</span></button>
+      <button type="button" class="nav-item" id="nav-usuarios" data-page="usuarios" onclick="goPage('usuarios')" style="display:none;"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2"/><path d="M17 11a3 3 0 0 0 0-6m2 15v-2a5 5 0 0 0-2-4"/></svg><span>Usuários</span></button>
+    </nav>
+    <div class="sidebar-footer" id="sidebar-footer">🔄 Sincronizado em tempo real</div>
+  </aside>
+
+  <div class="main">
+
+    <!-- Dashboard -->
+    <div id="page-dashboard">
+      <div class="topbar">
+        <button type="button" class="mobile-menu-btn" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir menu de navegação" title="Abrir menu de navegação" onclick="toggleSidebar()"><span aria-hidden="true">☰</span></button>
+        <div class="page-heading"><div class="page-title">Dashboard</div><p class="page-description">Acompanhe os indicadores e o andamento da operação.</p></div>
+      </div>
+      <div class="content">
+        <div class="stats-row" id="dash-stats"></div>
+        <div id="dash-low-banner"></div>
+        <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:16px;" id="dash-cols">
+          <div class="card">
+            <div class="section-title">🔧 Envios em Aberto</div>
+            <div id="dash-envios-abertos"></div>
+          </div>
+          <div class="card">
+            <div class="section-title">📦 Peças por Categoria</div>
+            <div id="dash-cat-chart"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estoque -->
+    <div id="page-estoque" style="display:none;">
+      <div class="topbar">
+        <button type="button" class="mobile-menu-btn" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir menu de navegação" title="Abrir menu de navegação" onclick="toggleSidebar()"><span aria-hidden="true">☰</span></button>
+        <div class="page-heading"><div class="page-title">Peças em Estoque</div><p class="page-description">Consulte saldos, valores e localização dos materiais.</p></div>
+        <div class="topbar-actions">
+          <button class="btn btn-ghost" onclick="exportarEstoqueCSV()">↓ Exportar CSV</button>
+          <button class="btn btn-ghost" onclick="openEntradaModal()">📥 Registrar Entrada</button>
+          <button class="btn btn-primary" onclick="openPecaModal()">＋ Nova Peça</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="stats-row" id="estoque-stats" style="grid-template-columns:repeat(3,1fr);"></div>
+        <div class="cat-tabs" id="estoque-cat-tabs"></div>
+        <div class="toolbar">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" placeholder="Buscar por nome, código ou localização..." id="search-pecas" aria-label="Buscar peças por nome, código ou localização" oninput="debouncedRenderEstoque();toggleSearchIcon(this)">
+          </div>
+          <select style="width:170px;" id="filter-status-peca" aria-label="Filtrar por status da peça" onchange="renderEstoque()">
+            <option value="">Todos os status</option>
+            <option value="Disponível">Disponível</option>
+            <option value="Em Reforma">Em Reforma</option>
+            <option value="Baixa">Baixa / Descartada</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Peça</th><th>Código</th><th>Categoria</th><th>Qtd.</th><th>Mín.</th><th>Local</th><th>Custo Médio</th><th>Valor em Estoque</th><th>Status</th><th>Ações</th>
+            </tr></thead>
+            <tbody id="pecas-tbody"></tbody>
+          </table>
+          <div id="pecas-empty" class="empty-state" style="display:none;">
+            <div class="empty-icon">📦</div>
+            <div class="empty-title">Nenhuma peça encontrada</div>
+            <div class="empty-sub">Adicione uma nova peça ou ajuste os filtros.</div>
+          </div>
+        </div>
+        <div id="pecas-pagination" style="display:flex;gap:8px;align-items:center;justify-content:center;margin-top:14px;"></div>
+      </div>
+    </div>
+
+    <!-- Curva A -->
+    <div id="page-curvaa" style="display:none;">
+      <div class="topbar">
+        <button type="button" class="mobile-menu-btn" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir menu de navegação" title="Abrir menu de navegação" onclick="toggleSidebar()"><span aria-hidden="true">☰</span></button>
+        <div class="page-heading"><div class="page-title">Curva A · Peças Paradas</div><p class="page-description">Organize os itens parados e acompanhe seu valor.</p></div>
+      </div>
+      <div class="content">
+        <div class="stats-row" id="curvaa-stats" style="grid-template-columns:repeat(3,1fr);"></div>
+        <div class="toolbar">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" placeholder="Buscar por nome, código ou localização..." id="search-curvaa" oninput="debouncedRenderCurvaA();toggleSearchIcon(this)">
+          </div>
+          <select style="width:170px;" id="filter-cat-curvaa" onchange="curvaPagina=1;renderCurvaA()">
+            <option value="">Todas as categorias</option>
+            <option value="Funilaria">Funilaria</option>
+            <option value="Elétrica">Elétrica</option>
+            <option value="Mecânica">Mecânica</option>
+            <option value="Borracharia">Borracharia</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Peça</th><th>Código</th><th>Categoria</th><th>Qtd.</th><th>Local</th><th>Custo Médio</th><th>Valor Parado</th><th>Na Curva A desde</th><th>Ações</th>
+            </tr></thead>
+            <tbody id="curvaa-tbody"></tbody>
+          </table>
+          <div id="curvaa-empty" class="empty-state" style="display:none;">
+            <div class="empty-icon">🅰️</div>
+            <div class="empty-title">Nenhuma peça na Curva A</div>
+            <div class="empty-sub">Em "Peças em Estoque", use o botão "🅰️ Curva A" para mover peças paradas para cá.</div>
+          </div>
+        </div>
+        <div id="curvaa-pagination" style="display:flex;gap:8px;align-items:center;justify-content:center;margin-top:14px;"></div>
+      </div>
+    </div>
+
+    <!-- Reformas e envios -->
+    <div id="page-reformas" style="display:none;">
+      <div class="topbar">
+        <button type="button" class="mobile-menu-btn" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir menu de navegação" title="Abrir menu de navegação" onclick="toggleSidebar()"><span aria-hidden="true">☰</span></button>
+        <div class="page-heading"><div class="page-title">Reformas & Envios</div><p class="page-description">Gerencie consertos, garantias e retornos.</p></div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary" onclick="openEnvioModal()">＋ Novo Envio</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="stats-row" id="reformas-stats" style="grid-template-columns:repeat(4,1fr);"></div>
+        <div class="toolbar">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" placeholder="Buscar por peça ou fornecedor..." id="search-envios" oninput="debouncedRenderEnvios();toggleSearchIcon(this)">
+          </div>
+          <select style="width:150px;" id="filter-tipo-envio" onchange="renderEnvios()">
+            <option value="">Todos os tipos</option>
+            <option value="Reforma">Reforma</option>
+            <option value="Conserto">Conserto</option>
+            <option value="Garantia">Garantia</option>
+          </select>
+          <select style="width:170px;" id="filter-status-envio" onchange="renderEnvios()">
+            <option value="">Todos os status</option>
+            <option value="Enviado">Enviado</option>
+            <option value="Em andamento">Em andamento</option>
+            <option value="Retornado">Retornado</option>
+          </select>
+        </div>
+        <div id="envios-list"></div>
+        <div id="envios-empty" class="empty-state" style="display:none;">
+          <div class="empty-icon">🔧</div>
+          <div class="empty-title">Nenhum envio encontrado</div>
+          <div class="empty-sub">Registre o envio de uma peça para reforma, conserto ou garantia.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Baixas -->
+    <div id="page-baixas" style="display:none;">
+      <div class="topbar">
+        <button type="button" class="mobile-menu-btn" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir menu de navegação" title="Abrir menu de navegação" onclick="toggleSidebar()"><span aria-hidden="true">☰</span></button>
+        <div class="page-heading"><div class="page-title">Baixas para Ônibus</div><p class="page-description">Acompanhe retiradas de peças e movimentações.</p></div>
+        <div class="topbar-actions">
+          <button class="btn btn-ghost" onclick="exportarBaixasCSV()">↓ Exportar CSV</button>
+          <button class="btn btn-primary" onclick="openBaixaModal()">＋ Nova Baixa</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="stats-row" id="baixas-stats" style="grid-template-columns:repeat(3,1fr);"></div>
+        <div class="toolbar">
+          <div class="search-wrap">
+            <span class="search-icon">📦</span>
+            <input type="text" class="search-input" placeholder="Buscar por peça ou código (produto)..." id="search-baixas-produto" aria-label="Buscar baixas por peça" oninput="debouncedRenderBaixas();toggleSearchIcon(this)">
+          </div>
+          <div class="search-wrap">
+            <span class="search-icon">🚌</span>
+            <input type="text" class="search-input" placeholder="Buscar por ônibus/frota/destino..." id="search-baixas-frota" aria-label="Buscar baixas por ônibus ou solicitante" oninput="debouncedRenderBaixas();toggleSearchIcon(this)">
+          </div>
+        </div>
+        <div class="stats-row" id="frota-baixas-stats" style="display:none;grid-template-columns:repeat(3,1fr);"></div>
+        <div class="toolbar">
+          <input type="date" id="filter-baixa-de" aria-label="Data inicial das baixas" style="width:150px;" onchange="baixasPagina=1;renderBaixas()" title="De">
+          <input type="date" id="filter-baixa-ate" aria-label="Data final das baixas" style="width:150px;" onchange="baixasPagina=1;renderBaixas()" title="Até">
+          <select id="filter-baixa-status" aria-label="Filtrar baixas por status" style="width:170px;" onchange="baixasPagina=1;renderBaixas()">
+            <option value="">Todos os status</option>
+            <option value="Realizado">Somente realizadas</option>
+            <option value="Pendente">Somente pendentes</option>
+            <option value="Extra-Saldo">Somente extra-saldo</option>
+          </select>
+          <select id="filter-baixa-agrupar" aria-label="Agrupar baixas" style="width:230px;" onchange="baixasPagina=1;renderBaixas()">
+            <option value="codigo">Agrupar por código (padrão)</option>
+            <option value="data">Ordenar por data (mais recente)</option>
+            <option value="onibus">Agrupar e comparar por ônibus/frota</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" id="btn-expandir-codigos" style="display:none;" onclick="expandirTodosCodigos()">⊕ Expandir tudo</button>
+          <button class="btn btn-ghost btn-sm" id="btn-recolher-codigos" style="display:none;" onclick="recolherTodosCodigos()">⊖ Recolher tudo</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Data</th><th>Peça</th><th>Cód. Peça</th><th>Ônibus/Destino</th><th>Qtd.</th><th>Solicitante</th><th>Entregue por</th><th>Status</th><th>Observações</th><th>Ações</th>
+            </tr></thead>
+            <tbody id="baixas-tbody"></tbody>
+          </table>
+          <div id="baixas-empty" class="empty-state" style="display:none;">
+            <div class="empty-icon">🚌</div>
+            <div class="empty-title">Nenhuma baixa registrada</div>
+            <div class="empty-sub">Registre a saída de uma peça do estoque para um ônibus específico.</div>
+          </div>
+        </div>
+        <div id="baixas-pagination" style="display:flex;gap:8px;align-items:center;justify-content:center;margin-top:14px;"></div>
+      </div>
+    </div>
+
+    <!-- Fornecedores -->
+    <div id="page-fornecedores" style="display:none;">
+      <div class="topbar">
+        <button type="button" class="mobile-menu-btn" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir menu de navegação" title="Abrir menu de navegação" onclick="toggleSidebar()"><span aria-hidden="true">☰</span></button>
+        <div class="page-heading"><div class="page-title">Fornecedores</div><p class="page-description">Dados e histórico dos parceiros de manutenção.</p></div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary" onclick="openFornecedorModal()">＋ Novo Fornecedor</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="toolbar">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" placeholder="Buscar por nome, CNPJ..." id="search-fornecedores" aria-label="Buscar fornecedores" oninput="debouncedRenderFornecedores();toggleSearchIcon(this)">
+          </div>
+        </div>
+        <div class="forn-grid" id="fornecedores-grid"></div>
+        <div id="fornecedores-empty" class="empty-state" style="display:none;">
+          <div class="empty-icon">🏭</div>
+          <div class="empty-title">Nenhum fornecedor cadastrado</div>
+          <div class="empty-sub">Cadastre fornecedores para vincular aos envios de reforma.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Relatórios -->
+    <div id="page-relatorios" style="display:none;">
+      <div class="topbar">
+        <button type="button" class="mobile-menu-btn" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir menu de navegação" title="Abrir menu de navegação" onclick="toggleSidebar()"><span aria-hidden="true">☰</span></button>
+        <div class="page-heading"><div class="page-title">Relatórios</div><p class="page-description">Analise custos, categorias e desempenho operacional.</p></div>
+      </div>
+      <div class="content">
+        <div class="toolbar">
+          <span style="font-size:12.5px;color:var(--muted);white-space:nowrap;">📅 Ver gasto do mês:</span>
+          <input type="month" id="rel-mes" aria-label="Mês dos relatórios" style="width:170px;flex:none;" onchange="renderRelatorios()">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('rel-mes').value='';renderRelatorios();">Ver todos os períodos</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportarEnviosCSV()">↓ Envios CSV</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportarRankingCSV()">↓ Fornecedores CSV</button>
+        </div>
+        <div class="stats-row" id="rel-stats" style="grid-template-columns:repeat(4,1fr);"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;" id="rel-cols">
+          <div class="card">
+            <div class="section-title">💰 Custo médio por tipo de envio</div>
+            <div id="rel-tipo-chart"></div>
+          </div>
+          <div class="card">
+            <div class="section-title">📦 Valor em estoque por categoria</div>
+            <div id="rel-cat-valor-chart"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title">🏭 Ranking de Fornecedores</div>
+          <div class="table-wrap" style="border:none;">
+            <table>
+              <thead><tr><th>Fornecedor</th><th>Envios</th><th>Valor Total</th><th>Valor Médio</th><th>Pendentes</th></tr></thead>
+              <tbody id="rel-forn-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Log de atividades -->
+    <div id="page-log" style="display:none;">
+      <div class="topbar">
+        <button type="button" class="mobile-menu-btn" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir menu de navegação" title="Abrir menu de navegação" onclick="toggleSidebar()"><span aria-hidden="true">☰</span></button>
+        <div class="page-heading"><div class="page-title">Log de Atividades</div><p class="page-description">Histórico das operações registradas no sistema.</p></div>
+      </div>
+      <div class="content">
+        <div class="toolbar">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" placeholder="Buscar por usuário ou descrição..." id="search-log" oninput="debouncedRenderLog();toggleSearchIcon(this)">
+          </div>
+          <select style="width:170px;" id="filter-log-tipo" onchange="renderLog()">
+            <option value="">Todos os tipos</option>
+            <option value="acesso">Acesso</option>
+            <option value="cadastro">Cadastro / Edição</option>
+            <option value="baixa">Baixa</option>
+            <option value="envio">Envio</option>
+            <option value="retorno">Retorno</option>
+            <option value="exclusao">Exclusão</option>
+          </select>
+          <input type="date" id="filter-log-de" style="width:150px;" onchange="renderLog()" title="De">
+          <input type="date" id="filter-log-ate" style="width:150px;" onchange="renderLog()" title="Até">
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Data/Hora</th><th>Usuário</th><th>Tipo</th><th>Ação</th><th>Detalhes</th></tr></thead>
+            <tbody id="log-tbody"></tbody>
+          </table>
+          <div id="log-empty" class="empty-state" style="display:none;">
+            <div class="empty-icon">🧾</div>
+            <div class="empty-title">Nenhum registro encontrado</div>
+            <div class="empty-sub">As ações realizadas no sistema aparecerão aqui.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Usuários -->
+    <div id="page-usuarios" style="display:none;">
+      <div class="topbar">
+        <button type="button" class="mobile-menu-btn" aria-expanded="false" aria-controls="sidebar" aria-label="Abrir menu de navegação" title="Abrir menu de navegação" onclick="toggleSidebar()"><span aria-hidden="true">☰</span></button>
+        <div class="page-heading"><div class="page-title">Usuários do Sistema</div><p class="page-description">Administre os perfis e os acessos autorizados.</p></div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary" onclick="openUsuarioModal()">＋ Novo Usuário</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="toolbar">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" placeholder="Buscar por nome ou e-mail..." id="search-usuarios" oninput="debouncedRenderUsuarios();toggleSearchIcon(this)">
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Cadastrado em</th><th>Ações</th></tr></thead>
+            <tbody id="usuarios-tbody"></tbody>
+          </table>
+          <div id="usuarios-empty" class="empty-state" style="display:none;">
+            <div class="empty-icon">👤</div>
+            <div class="empty-title">Nenhum usuário cadastrado</div>
+            <div class="empty-sub">Crie usuários pelo botão "Novo Usuário".</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Carregamento -->
+<div id="loading-overlay" style="position:fixed;inset:0;background:var(--black);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;">
+  <div class="logo-badge" style="width:52px;height:52px;">
+    <svg width="27" height="27" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2 L14 5 L18 4 L18 8 L21 10 L19 13 L21 16 L18 18 L18 22 L14 21 L12 24 L10 21 L6 22 L6 18 L3 16 L5 13 L3 10 L6 8 L6 4 L10 5 Z" fill="#1a1005"/>
+      <circle cx="12" cy="13" r="4.5" fill="#1a1005"/>
+      <circle cx="12" cy="13" r="2" fill="#eda934"/>
+    </svg>
+  </div>
+  <div class="logo-mark">GestãoPeças</div>
+  <div style="font-size:12.5px;color:var(--muted);" id="loading-text">Carregando...</div>
+</div>
+
+<!-- Login -->
+<div id="ident-overlay" class="login-overlay" style="display:none;">
+  <div class="login-panel">
+    <div class="login-brand">
+      <div class="logo-badge login-brand-icon" aria-hidden="true">
+        <svg width="23" height="23" viewBox="0 0 24 24" fill="none"><path d="M12 2 L14 5 L18 4 L18 8 L21 10 L19 13 L21 16 L18 18 L18 22 L14 21 L12 24 L10 21 L6 22 L6 18 L3 16 L5 13 L3 10 L6 8 L6 4 L10 5 Z" fill="#1a1005"/><circle cx="12" cy="13" r="4.5" fill="#1a1005"/><circle cx="12" cy="13" r="2" fill="#eda934"/></svg>
+      </div>
+      <div><div class="login-brand-title">GestãoPeças</div><div class="login-brand-sub">CONTROLE INTELIGENTE DE ALMOXARIFADO</div></div>
+    </div>
+    <div class="login-divider"></div>
+    <div class="login-heading">Bem-vindo de volta</div>
+    <p class="login-intro">Acesse o painel para acompanhar estoque, movimentações e reformas.</p>
+
+    <div id="ident-panel-demo" style="display:none;">
+      <div class="login-demo-note"><span class="login-demo-dot" aria-hidden="true"></span><div><strong>Ambiente de demonstração</strong><span>Dados fictícios, sem senha e sem conexão com o banco de produção.</span></div></div>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label for="login-demo-usuario">Entrar como</label>
+        <select id="login-demo-usuario" aria-label="Escolher perfil de demonstração"></select>
+      </div>
+      <button class="btn btn-primary" style="width:100%;" onclick="loginDemo()">Entrar</button>
+    </div>
+
+    <div id="ident-panel-firebase" style="display:none;">
+      <div class="form-group" style="margin-bottom:12px;">
+        <label for="login-email">E-mail</label>
+        <input type="email" id="login-email" placeholder="voce@exemplo.com" autocomplete="username">
+      </div>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label for="login-senha">Senha</label>
+        <input type="password" id="login-senha" placeholder="Sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')loginUsuario();">
+      </div>
+      <button class="btn btn-primary" style="width:100%;" onclick="loginUsuario()">Entrar</button>
+      <div style="text-align:center;margin-top:10px;"><button type="button" class="link-button" onclick="recuperarSenha()">Esqueci minha senha</button></div>
+    </div>
+
+    <div id="ident-erro" class="login-error" role="alert"></div>
+    <div class="login-footnote">Não há cadastro público: as contas são criadas por um administrador.</div>
+  </div>
+</div>
+
+<!-- Formulário de peça -->
+<div class="modal-overlay" id="modal-peca" role="dialog" aria-modal="true" aria-labelledby="peca-modal-title">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="peca-modal-title">Nova Peça</div>
+      <button type="button" class="close-btn" aria-label="Fechar janela" onclick="closeModal('modal-peca')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="peca-id">
+      <div class="form-grid">
+        <div class="form-group span-2">
+          <label for="peca-nome">Nome da Peça *</label>
+          <input type="text" id="peca-nome" placeholder="Ex: Amortecedor dianteiro">
+        </div>
+        <div class="form-group">
+          <label for="peca-codigo">Código / Referência</label>
+          <input type="text" id="peca-codigo" placeholder="Ex: AMD-2201">
+        </div>
+        <div class="form-group">
+          <label for="peca-categoria">Categoria *</label>
+          <select id="peca-categoria">
+            <option>Funilaria</option>
+            <option>Elétrica</option>
+            <option>Mecânica</option>
+            <option>Borracharia</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label id="peca-quantidade-label" for="peca-quantidade">Quantidade Inicial em Estoque</label>
+          <input type="number" id="peca-quantidade" value="0" min="0">
+        </div>
+        <div class="form-group">
+          <label for="peca-minimo">Estoque Mínimo</label>
+          <input type="number" id="peca-minimo" value="0" min="0">
+        </div>
+        <div class="form-group">
+          <label for="peca-unidade">Unidade</label>
+          <select id="peca-unidade">
+            <option>un</option><option>par</option><option>jogo</option><option>kg</option><option>m</option><option>litro</option><option>caixa</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label id="peca-valor-label" for="peca-valor">Valor Unitário Inicial (R$)</label>
+          <input type="number" id="peca-valor" step="0.01" min="0" placeholder="0,00">
+        </div>
+        <div class="form-group">
+          <label for="peca-local">Localização no Estoque</label>
+          <input type="text" id="peca-local" placeholder="Ex: Prateleira B3">
+        </div>
+        <div class="form-group">
+          <label for="peca-status">Status</label>
+          <select id="peca-status">
+            <option>Disponível</option>
+            <option>Em Reforma</option>
+            <option>Baixa</option>
+          </select>
+        </div>
+        <div class="form-group span-2">
+          <label for="peca-obs">Observações</label>
+          <textarea id="peca-obs" rows="2" placeholder="Aplicação, veículo, detalhes técnicos..."></textarea>
+        </div>
+        <div class="form-group span-2" id="peca-entrada-nota" style="display:none;font-size:11.5px;color:var(--muted);">Para adicionar mais unidades ao estoque, use "Registrar Entrada" na tela de Peças em Estoque — isso mantém o custo médio correto. Se você alterar o valor unitário aqui, o novo valor passa a valer para todas as unidades em estoque (substitui o custo médio atual).</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-peca')">Cancelar</button>
+      <button class="btn btn-primary" onclick="savePeca()">Salvar Peça</button>
+    </div>
+  </div>
+</div>
+
+<!-- Entrada de estoque -->
+<div class="modal-overlay" id="modal-entrada" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-entrada">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="titulo-modal-entrada">Registrar Entrada de Estoque</div>
+      <button type="button" class="close-btn" aria-label="Fechar janela" onclick="closeModal('modal-entrada')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group span-2">
+          <label for="entrada-peca-search">Peça *</label>
+          <div class="combo-wrap">
+            <span class="combo-icon">🔍</span>
+            <input type="text" id="entrada-peca-search" class="combo-input" placeholder="Pesquise pelo código ou nome da peça..." autocomplete="off" oninput="comboFiltro('entrada')" onfocus="comboAbrir('entrada')" onblur="comboFechar('entrada')">
+            <input type="hidden" id="entrada-peca">
+            <div class="combo-dropdown" id="entrada-peca-dropdown"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="entrada-quantidade">Quantidade Recebida *</label>
+          <input type="number" id="entrada-quantidade" min="1" value="1">
+        </div>
+        <div class="form-group">
+          <label for="entrada-valor">Valor Unitário (R$) *</label>
+          <input type="number" id="entrada-valor" step="0.01" min="0" placeholder="0,00">
+        </div>
+        <div class="form-group span-2">
+          <label for="entrada-data">Data da Entrada</label>
+          <input type="date" id="entrada-data">
+        </div>
+      </div>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:14px;">O custo médio da peça é recalculado automaticamente com base em todas as entradas registradas e seus respectivos valores unitários.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-entrada')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarEntrada()">Registrar Entrada</button>
+    </div>
+  </div>
+</div>
+
+<!-- Formulário de fornecedor -->
+<div class="modal-overlay" id="modal-fornecedor" role="dialog" aria-modal="true" aria-labelledby="forn-modal-title">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="forn-modal-title">Novo Fornecedor</div>
+      <button type="button" class="close-btn" aria-label="Fechar janela" onclick="closeModal('modal-fornecedor')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="forn-id">
+      <div class="form-grid">
+        <div class="form-group span-2">
+          <label for="forn-nome">Nome / Razão Social *</label>
+          <input type="text" id="forn-nome" placeholder="Ex: Fornecedor Demo Ltda">
+        </div>
+        <div class="form-group">
+          <label for="forn-cnpj">CNPJ</label>
+          <input type="text" id="forn-cnpj" placeholder="00.000.000/0000-00">
+        </div>
+        <div class="form-group">
+          <label for="forn-telefone">Telefone de Contato</label>
+          <input type="text" id="forn-telefone" placeholder="(00) 00000-0000">
+        </div>
+        <div class="form-group span-2">
+          <label for="forn-email">E-mail</label>
+          <input type="text" id="forn-email" placeholder="contato@fornecedor.com.br">
+        </div>
+        <div class="form-group span-2">
+          <label for="forn-endereco">Endereço</label>
+          <input type="text" id="forn-endereco" placeholder="Rua, número, bairro, cidade">
+        </div>
+        <div class="form-group span-2">
+          <label for="forn-especialidade">Especialidade</label>
+          <select id="forn-especialidade">
+            <option value="">Não especificado</option>
+            <option>Funilaria</option>
+            <option>Elétrica</option>
+            <option>Mecânica</option>
+            <option>Borracharia</option>
+            <option>Múltiplas áreas</option>
+          </select>
+        </div>
+        <div class="form-group span-2">
+          <label for="forn-obs">Observações</label>
+          <textarea id="forn-obs" rows="2" placeholder="Condições de pagamento, prazos médios, etc."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-fornecedor')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveFornecedor()">Salvar Fornecedor</button>
+    </div>
+  </div>
+</div>
+
+<!-- Formulário de envio -->
+<div class="modal-overlay" id="modal-envio" role="dialog" aria-modal="true" aria-labelledby="envio-modal-title">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="envio-modal-title">Novo Envio para Reforma</div>
+      <button type="button" class="close-btn" aria-label="Fechar janela" onclick="closeModal('modal-envio')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="envio-id">
+      <div class="form-grid">
+        <div class="form-group span-2">
+          <label for="envio-peca">Peça *</label>
+          <select id="envio-peca"></select>
+        </div>
+        <div class="form-group span-2">
+          <label for="envio-fornecedor">Fornecedor *</label>
+          <select id="envio-fornecedor"></select>
+        </div>
+        <div class="form-group">
+          <label for="envio-tipo">Tipo de Envio *</label>
+          <select id="envio-tipo">
+            <option>Reforma</option>
+            <option>Conserto</option>
+            <option>Garantia</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="envio-data">Data do Envio *</label>
+          <input type="date" id="envio-data">
+        </div>
+        <div class="form-group">
+          <label for="envio-valor">Valor do Envio (R$)</label>
+          <input type="number" id="envio-valor" step="0.01" min="0" placeholder="0,00">
+        </div>
+        <div class="form-group">
+          <label for="envio-status">Status</label>
+          <select id="envio-status">
+            <option>Enviado</option>
+            <option>Em andamento</option>
+            <option>Retornado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="envio-entregue-por">Entregue por (quem levou a peça)</label>
+          <input type="text" id="envio-entregue-por" placeholder="Nome de quem entregou">
+        </div>
+        <div class="form-group">
+          <label for="envio-recebido-por">Recebido por (no fornecedor)</label>
+          <input type="text" id="envio-recebido-por" placeholder="Nome de quem recebeu">
+        </div>
+        <div class="form-group span-2" id="envio-retorno-data-wrap" style="display:none;">
+          <label for="envio-data-retorno">Data do Retorno</label>
+          <input type="date" id="envio-data-retorno">
+        </div>
+        <div class="form-group span-2">
+          <label for="envio-obs">Observações</label>
+          <textarea id="envio-obs" rows="2" placeholder="Detalhes do serviço, condições, etc."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-envio')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEnvio()">Salvar Envio</button>
+    </div>
+  </div>
+</div>
+
+<!-- Formulário de baixa -->
+<div class="modal-overlay" id="modal-baixa" role="dialog" aria-modal="true" aria-labelledby="baixa-modal-title">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="baixa-modal-title">Nova Baixa para Ônibus</div>
+      <button type="button" class="close-btn" aria-label="Fechar janela" onclick="closeModal('modal-baixa')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="baixa-id">
+      <div class="form-grid">
+        <div class="form-group span-2">
+          <label for="baixa-peca-search">Peça *</label>
+          <div class="combo-wrap">
+            <span class="combo-icon">🔍</span>
+            <input type="text" id="baixa-peca-search" class="combo-input" placeholder="Pesquise pelo código ou nome da peça..." autocomplete="off" oninput="comboFiltro('baixa')" onfocus="comboAbrir('baixa')" onblur="comboFechar('baixa')">
+            <input type="hidden" id="baixa-peca">
+            <div class="combo-dropdown" id="baixa-peca-dropdown"></div>
+          </div>
+          <div id="baixa-peca-estoque-info" style="font-size:11.5px;color:var(--muted);margin-top:4px;"></div>
+        </div>
+        <div class="form-group">
+          <label for="baixa-onibus">Código do Ônibus *</label>
+          <input type="text" id="baixa-onibus" placeholder="Ex: 101">
+        </div>
+        <div class="form-group">
+          <label for="baixa-qtd">Quantidade *</label>
+          <input type="number" id="baixa-qtd" value="1" min="1">
+        </div>
+        <div class="form-group">
+          <label for="baixa-data">Data da Baixa *</label>
+          <input type="date" id="baixa-data">
+        </div>
+        <div class="form-group">
+          <label for="baixa-solicitante">Solicitante</label>
+          <input type="text" id="baixa-solicitante" placeholder="Quem solicitou a peça">
+        </div>
+        <div class="form-group">
+          <label for="baixa-registrado-por">Entregue por</label>
+          <input type="text" id="baixa-registrado-por" placeholder="Nome de quem registrou a baixa">
+        </div>
+        <div class="form-group">
+          <label for="baixa-status">Status</label>
+          <select id="baixa-status">
+            <option value="Realizado">Realizado (desconta do estoque)</option>
+            <option value="Pendente">Pendente (não desconta do estoque)</option>
+            <option value="Extra-Saldo">Extra-Saldo (não desconta do estoque)</option>
+          </select>
+        </div>
+        <div class="form-group span-2">
+          <label for="baixa-obs">Observações</label>
+          <textarea id="baixa-obs" rows="2" placeholder="Ex: Jogo de lona de freio, troca completa, etc."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-baixa')">Cancelar</button>
+      <button class="btn btn-primary" id="baixa-submit-btn" onclick="saveBaixa()">Registrar Baixa</button>
+    </div>
+  </div>
+</div>
+
+<!-- Formulário de usuário -->
+<div class="modal-overlay" id="modal-usuario" role="dialog" aria-modal="true" aria-labelledby="usuario-modal-title">
+  <div class="modal" style="width:440px;">
+    <div class="modal-header">
+      <div class="modal-title" id="usuario-modal-title">Novo Usuário</div>
+      <button type="button" class="close-btn" aria-label="Fechar janela" onclick="closeModal('modal-usuario')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="usuario-id">
+      <div class="form-group" style="margin-bottom:14px;">
+        <label for="usuario-nome">Nome completo *</label>
+        <input type="text" id="usuario-nome" placeholder="Ex: Usuário Demo">
+      </div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label for="usuario-email">E-mail *</label>
+        <input type="email" id="usuario-email" placeholder="usuario@exemplo.com">
+      </div>
+      <div class="form-group" style="margin-bottom:14px;" id="usuario-senha-grupo">
+        <label for="usuario-senha">Senha temporária * (mín. 8 caracteres)</label>
+        <input type="password" id="usuario-senha" autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label for="usuario-role">Perfil *</label>
+        <select id="usuario-role">
+          <option value="user">Usuário (operação de estoque)</option>
+          <option value="admin">Administrador (usuários e log)</option>
+        </select>
+      </div>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:12px;">Somente administradores criam, editam e excluem usuários. Senhas são gerenciadas pelo Firebase Authentication e nunca ficam no banco de dados.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="usuario-reset-btn" onclick="redefinirSenhaUsuario()" style="margin-right:auto;">✉ Enviar redefinição de senha</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-usuario')">Cancelar</button>
+      <button class="btn btn-primary" id="usuario-salvar-btn" onclick="salvarUsuario()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mover para Curva A -->
+<div class="modal-overlay" id="modal-curvaa-mover" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-curvaa-mover">
+  <div class="modal" style="width:460px;">
+    <div class="modal-header">
+      <div class="modal-title" id="titulo-modal-curvaa-mover">Mover para Curva A</div>
+      <button type="button" class="close-btn" aria-label="Fechar janela" onclick="closeModal('modal-curvaa-mover')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="curvaa-peca-id">
+      <div class="form-grid">
+        <div class="form-group span-2">
+          <span class="form-label">Peça</span>
+          <div id="curvaa-peca-nome" style="font-weight:600;"></div>
+          <div id="curvaa-peca-info" style="font-size:11.5px;color:var(--muted);margin-top:4px;"></div>
+        </div>
+        <div class="form-group span-2">
+          <label for="curvaa-quantidade">Quantidade a mover *</label>
+          <input type="number" id="curvaa-quantidade" min="1" value="1">
+        </div>
+        <div class="form-group span-2">
+          <label for="curvaa-motivo">Observação (opcional)</label>
+          <input type="text" id="curvaa-motivo" placeholder="Ex.: sem saída há mais de 12 meses">
+        </div>
+      </div>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:14px;">A quantidade movida sai de "Peças em Estoque". Se você mover todo o saldo, a peça deixa de aparecer no estoque principal. Você pode devolvê-la a qualquer momento pela aba Curva A.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-curvaa-mover')">Cancelar</button>
+      <button class="btn btn-primary" onclick="moverParaCurvaA()">Mover para Curva A</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmação -->
+<div class="modal-overlay" id="modal-confirm" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-confirm">
+  <div class="modal" style="width:400px;">
+    <div class="modal-header">
+      <div class="modal-title" id="titulo-modal-confirm">Confirmar</div>
+      <button type="button" class="close-btn" aria-label="Fechar janela" onclick="closeModal('modal-confirm')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-msg" id="confirm-msg"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-confirm')">Cancelar</button>
+      <button class="btn btn-danger" id="confirm-btn" onclick="">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-database-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/firebase-config.local.js" onerror="this.remove()"></script>
+<script src="data/demo-data.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/firebase.js"></script>
+<script src="js/manutencao.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/auditoria.js"></script>
+<script src="js/usuarios.js"></script>
+<script src="js/estoque.js"></script>
+<script src="js/fornecedores.js"></script>
+<script src="js/reformas.js"></script>
+<script src="js/baixas.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/exportacao.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
