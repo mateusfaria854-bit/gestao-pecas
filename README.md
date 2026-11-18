@@ -113,11 +113,3 @@ O GitHub Actions executa esses testes automaticamente a cada *push* e *pull requ
 - Exportação em PDF e importação de planilhas
 - Módulos ES e bundler
 
-## Publicar a demonstração
-
-1. Envie o conteúdo da pasta `GestaoPecas/` para a raiz do repositório.
-2. Em **Settings → Pages**, escolha **Deploy from a branch**, `main` e `/ (root)`, ou conecte o repositório ao Netlify.
-3. Abra o endereço publicado em uma aba anônima e confira os dois perfis demo.
-4. Atualize o campo **Demonstração online** no início deste README com o endereço **da versão nova**, não com links de ambientes de trabalho.
-
-**Aviso:** não configure o Firebase de produção em uma demonstração pública. A publicação estática usa dados fictícios em memória e reinicia após atualizar a página.
