@@ -1,111 +1,136 @@
 # GestãoPeças
 
-Sistema web para gestão de peças, movimentações de estoque, reformas e fornecedores.
+[![Testes automatizados](https://github.com/mateusfaria854-bit/gestao-pecas/actions/workflows/testes.yml/badge.svg)](https://github.com/mateusfaria854-bit/gestao-pecas/actions/workflows/testes.yml)
 
-Este repositório contém uma demonstração com dados fictícios e integração simulada com ordens de serviço.
+**Sistema web de gestão de almoxarifado**, desenvolvido com HTML, CSS e JavaScript. Permite acompanhar peças, movimentações, custos, fornecedores, reformas e indicadores em um único painel.
 
-**Demonstração online:** O projeto funciona abrindo `index.html` localmente, sem cadastro nem banco externo.
+[**Experimentar demonstração**](https://mateusfaria854-bit.github.io/gestao-pecas/) · [**Ver arquitetura**](docs/ARQUITETURA.md) · [**Acompanhar melhorias**](https://github.com/mateusfaria854-bit/gestao-pecas/issues)
 
-> Acesse o modo demonstração com **Administrador Demo** para explorar os relatórios e os logs, ou com **Usuário Demo** para conferir as permissões.
+> **Demonstração pública:** todos os dados são fictícios. Não é necessário criar conta, informar senha nem configurar Firebase. Selecione **Administrador Demo** ou **Usuário Demo** para explorar os perfis. Os dados ficam na memória do navegador e são reiniciados ao recarregar a página.
 
-## Sobre o projeto
-O sistema centraliza o cadastro de peças, o acompanhamento das movimentações e o controle de itens enviados para reforma. Também reúne custos e indicadores em um único painel.
+## Por que esse projeto existe?
 
-## Funcionalidades
-- **Estoque**: cadastro de peças, categorias, localização, estoque mínimo com alertas, busca, filtros, paginação e exportação CSV
-- **Entradas** com **média ponderada histórica de compras** (ajustes manuais são registrados sem reescrever entradas)
-- **Baixas para ônibus** (status Realizado / Pendente / Extra-Saldo), agrupadas por peça, ônibus ou data, com exportação CSV
-- **Curva A · Peças Paradas**: estoque secundário para itens parados (denominação interna; não é uma análise ABC tradicional)
-- **Reformas, consertos e garantias**: envio, acompanhamento e retorno
-- **Fornecedores** e **ranking de fornecedores**
-- **Dashboard** e **relatórios** (gastos mensais, valor do estoque, etc.), com exportação de envios e ranking em CSV
-- **Auditoria**: log de atividades (somente administradores)
-- **Usuários e perfis** (admin/usuário) com Firebase Authentication
-- Validação de **ordem de serviço aberta** antes da baixa (integração simulada)
+Rotinas de almoxarifado exigem informações consistentes sobre disponibilidade, entradas, saídas, custos e o andamento de itens enviados para reforma. O GestãoPeças reúne essas operações em uma interface única e oferece relatórios para apoiar o acompanhamento do estoque.
 
-## Tecnologias
-HTML, CSS e JavaScript puro (sem build) · Firebase Authentication · Firebase Realtime Database (opcional).
+O projeto combina regras de negócio do cotidiano operacional com desenvolvimento web. A versão pública foi separada de ambientes reais para permitir que qualquer pessoa avalie a aplicação com segurança.
 
-## Arquitetura
+## Demonstração
 
-O código-fonte está organizado em módulos ES, com separação das regras de negócio e da interface:
+![Visão geral do sistema](docs/demo-rapido.gif)
 
-```text
-src/
-  core/             inicialização, estado e configuração
-  domain/           regras de estoque, baixas e CSV
-  services/         Firebase/demonstração e integração simulada
-  features/         telas e fluxos de cada área
-  components/       modais e notificações
-  utils/            formatação e utilitários
-  styles/           CSS por responsabilidade e responsividade
-  main.js           entrada ES para evolução futura
-scripts/build.mjs   gera o bundle compatível dist/app.js
-tests/unit/         testes de regras puras
-```
-
-A versão publicada utiliza `dist/app.js`, gerado com `npm run build` a partir dos módulos ES. A ponte preserva os manipuladores HTML antigos durante a migração. **Não edite o bundle diretamente.** Mais detalhes em [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
-
-## Como executar (modo demonstração)
-Abra `index.html` no navegador. Ao alterar JavaScript em `src/`, execute `npm run build` (Node.js 22+). Se preferir um servidor local:
-```bash
-python3 -m http.server 8000
-# abra http://localhost:8000
-```
-Escolha "Administrador Demo" ou "Usuário Demo" na tela de entrada (não há senha no modo demo).
-As alterações ficam em memória e são perdidas ao recarregar a página.
-
-Dica: a baixa para o ônibus **108** é bloqueada de propósito (sem OS aberta na simulação); os ônibus 101–107, 109 e 110 têm OS aberta.
-
-## Configurar com Firebase (opcional)
-Veja [docs/FIREBASE.md](docs/FIREBASE.md): copie `src/core/firebase-config.example.js` para `src/core/firebase-config.local.js`
-(ignorado pelo Git), publique `database.rules.json` e crie o primeiro administrador.
-Use sempre um projeto Firebase **separado** de qualquer ambiente real.
-
-## Dados de demonstração
-`data/demo-data.json` contém dados 100% fictícios (ex.: "Filtro de óleo", PEC-001, "Fornecedor Demo Alfa Ltda", ônibus 101).
-Para alterar a demonstração, **atualize `data/demo-data.js` e `data/demo-data.json` juntos**. O arquivo JavaScript é usado primeiro ao abrir localmente; o JSON serve como alternativa ao usar servidor. Para atualizar os dois sem divergências, use `python3 scripts/sincronizar-demo.py` após editar o JSON.
-
-## Segurança
-Autenticação por Firebase Authentication no modo opcional, perfis por `role` e regras de acesso iniciais do banco. **O modo Firebase é experimental** e requer testes das regras, validações no backend e auditoria de logs antes do uso em produção.
-Detalhes em [docs/PERMISSOES.md](docs/PERMISSOES.md) e [docs/FIREBASE.md](docs/FIREBASE.md).
-A integração de ordens de serviço é simulada nesta versão.
-
-## Demonstração visual
-![Visão geral das telas principais](docs/demo-rapido.gif)
-
-## Screenshots
 | Dashboard | Estoque | Baixas |
 |---|---|---|
 | ![Dashboard](docs/screenshots/01-dashboard.png) | ![Estoque](docs/screenshots/02-estoque.png) | ![Baixas](docs/screenshots/05-baixas.png) |
 
-## Testes
-Execute os testes unitários com Node.js 22+ e os testes de regressão com Chromium e Playwright:
+**Fluxo sugerido de teste:** entrar como Administrador Demo → consultar o dashboard → cadastrar ou editar uma peça → registrar uma entrada ou baixa → abrir relatórios e exportar CSV.
+
+## Funcionalidades
+
+- **Estoque:** cadastro e edição de peças, localização, estoque mínimo, filtros, busca, paginação e exportação CSV.
+- **Movimentações:** entradas, baixas por ônibus e histórico de operações.
+- **Custos:** média histórica ponderada das entradas e indicadores gerenciais.
+- **Peças paradas:** separação de itens no módulo denominado internamente *Curva A*. Não se trata da classificação ABC tradicional.
+- **Reformas e garantias:** envios, acompanhamento e retornos.
+- **Fornecedores:** cadastro, consultas e ranking.
+- **Relatórios:** visão de custos e movimentações, além de exportação CSV.
+- **Perfis e auditoria:** navegação por perfil de demonstração e logs acessíveis ao administrador.
+- **Ordens de serviço:** integração simulada que valida a existência de OS aberta antes da baixa.
+
+## Tecnologias
+
+| Camada | Tecnologias |
+|---|---|
+| Interface | HTML5, CSS3, JavaScript |
+| Organização | Módulos ES, separação por responsabilidades e script de build |
+| Dados da demonstração | Dados fictícios em memória, sem backend |
+| Persistência opcional | Firebase Authentication e Firebase Realtime Database |
+| Qualidade | Testes unitários com Node.js, testes de regressão com Playwright e GitHub Actions |
+
+O Firebase é **opcional e experimental**: não está conectado à demonstração pública e não deve ser usado com dados produtivos sem validar regras de acesso e cenários concorrentes.
+
+## Organização do projeto
+
+```text
+src/
+├── core/          Inicialização, estado e configuração
+├── domain/        Regras de negócio independentes da interface
+├── services/      Acesso aos dados e integração simulada
+├── features/      Funcionalidades e controladores por área
+├── components/    Modais e notificações
+├── utils/         Funções auxiliares
+├── styles/        Estilos por responsabilidade
+└── main.js        Entrada dos módulos ES
+
+dist/app.js         Bundle gerado para a interface atual
+data/               Dados fictícios
+docs/               Arquitetura, instruções e capturas
+scripts/            Build e sincronização dos dados demo
+tests/              Testes integrados e unitários
+index.html          Página principal
+```
+
+**Decisões técnicas:** a lógica de validação, custos e baixas foi extraída para `src/domain/`, permitindo testes sem navegador. Os controladores de interface chamam a camada de dados, que pode operar em memória ou, quando configurada separadamente, via Firebase. Um bundle de compatibilidade preserva os eventos HTML existentes enquanto essa migração é concluída.
+
+Leia [docs/ARQUITETURA.md](docs/ARQUITETURA.md) para os detalhes e limitações.
+
+## Executar localmente
+
+Você pode abrir `index.html` diretamente no navegador, usando o bundle já incluído. Se preferir servir por HTTP:
+
+```bash
+python3 -m http.server 8000
+# abra http://localhost:8000
+```
+
+Ao alterar arquivos JavaScript em `src/`, é necessário gerar novamente o bundle usando **Node.js 22 ou superior**:
+
+```bash
+npm run build
+```
+
+A demonstração não exige autenticação real nem configuração de banco. O ônibus **108** não possui OS aberta na simulação e serve como cenário de validação de erro.
+
+Para modificar os dados fictícios, edite `data/demo-data.json` e sincronize a cópia para abertura local:
+
+```bash
+python3 scripts/sincronizar-demo.py
+```
+
+## Testes e qualidade
+
 ```bash
 npm run build
 npm test
 python3 tests/test_demo.py
 python3 tests/test_melhorias.py
 ```
-Em outros sistemas, defina `CHROMIUM_BIN` com o caminho do Chromium. Os testes abrangem as baixas, saldo, entradas, histórico de custos, envios, XSS, exportação CSV, notificações, navegação acessível e responsividade mobile.
 
-O GitHub Actions executa o build, os testes unitários e os testes integrados automaticamente a cada *push* e *pull request*, em `.github/workflows/testes.yml`. Os testes do Firebase real no Emulator Suite são uma etapa separada.
+Os testes de integração exigem **Python, Playwright e Chromium**. A automação em [GitHub Actions](https://github.com/mateusfaria854-bit/gestao-pecas/actions/workflows/testes.yml) executa o build, os testes unitários e os cenários de regressão a cada atualização.
 
-## Limitações conhecidas
-- Coleções operacionais são gravadas como um array inteiro: edições simultâneas podem se sobrepor (última gravação vence), e as regras não distinguem criar/editar/excluir dentro de uma coleção.
-- O front-end esconde telas por perfil, mas a proteção efetiva é feita pelas Security Rules (que ainda devem ser testadas no Emulator Suite).
-- Excluir usuário remove o perfil, não a conta no Firebase Authentication (exige Admin SDK/Cloud Function).
-- Testes de regressão disponíveis em `tests/` (dependem de Playwright/Chromium); sem build/empacotamento.
-- Fontes e SDK do Firebase são carregados de CDNs públicas.
+Os cenários cobrem, entre outros pontos, quantidades inválidas, saldo insuficiente, edição de baixas, custos, segurança da exportação CSV, navegação por teclado e responsividade.
 
-## Regras de negócio
-- O custo exibido é a **média histórica ponderada das entradas**, não o custo contábil médio móvel. Uma edição manual do valor atual gera um ajuste sem reescrever entradas anteriores; a próxima entrada volta a considerar a média histórica.
-- Uma baixa com status **Realizado** desconta o saldo somente se houver estoque suficiente. **Extra-Saldo** e **Pendente** não descontam.
-- As quantidades são inteiras para peças por unidade; `kg`, `m` e `litro` admitem frações.
+## Segurança e limitações
 
-## Melhorias futuras
-- Gravações granulares por registro (`push`/`update`) e regras por tipo de operação
-- Cloud Functions para criação/remoção completa de usuários e para a integração real de manutenção
-- Testes de regras no Firebase Emulator, cobertura unitária adicional e monitoramento em produção
-- Exportação em PDF e importação de planilhas
-- Migrar os eventos HTML inline para módulos ES nativos e remover o bundle de compatibilidade
+- Somente **dados demonstrativos** devem ser publicados. Não use credenciais ou dados internos de empresas.
+- O modo Firebase usa configurações externas e precisa de testes de segurança no Emulator Suite antes de uso real.
+- A gravação de coleções inteiras no Firebase opcional pode gerar conflito entre edições simultâneas. A demo local não possui esse problema entre visitantes.
+- A exclusão de um perfil não remove automaticamente a conta do Firebase Authentication.
+- Eventos inline ainda são mantidos por compatibilidade. A migração completa está planejada.
+
+Mais informações em [Firebase](docs/FIREBASE.md) e [Permissões](docs/PERMISSOES.md).
+
+## Roadmap
+
+As próximas melhorias estão registradas em Issues, com objetivos e critérios de aceite:
+
+1. [Concluir módulos ES e remover eventos inline](https://github.com/mateusfaria854-bit/gestao-pecas/issues/2)
+2. [Testar regras do Firebase no Emulator Suite](https://github.com/mateusfaria854-bit/gestao-pecas/issues/3)
+3. [Evoluir a persistência concorrente no Firebase](https://github.com/mateusfaria854-bit/gestao-pecas/issues/4)
+4. [Aprimorar a experiência mobile e a acessibilidade](https://github.com/mateusfaria854-bit/gestao-pecas/issues/5)
+5. [Exportar PDF e importar planilhas com validação](https://github.com/mateusfaria854-bit/gestao-pecas/issues/6)
+
+## Autor
+
+Desenvolvido por [Mateus Faria Andrade](https://github.com/mateusfaria854-bit), estudante de Engenharia de Software na Universidade de Rio Verde (UniRV).
+
+[Modelo de README para perfil profissional](docs/PERFIL_GITHUB.md).
