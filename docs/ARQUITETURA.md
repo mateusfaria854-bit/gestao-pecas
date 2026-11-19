@@ -23,9 +23,9 @@ Separar interface, regras de negócio e persistência sem alterar as funcionalid
 
 ## Compatibilidade e build
 
-O código-fonte usa módulos ES com dependências explícitas por `import`. O sistema original mantém eventos inline em HTML; para evitar regressões, `npm run build` gera `dist/app.js`, um bundle clássico com ordem controlada por `scripts/build.mjs`. Edite apenas `src/`; não modifique o bundle manualmente.
+O código-fonte usa módulos ES com dependências explícitas por `import`. O sistema original mantém eventos inline em HTML; para evitar regressões, `npm run build` gera `dist/app.js`, um bundle clássico com ordem controlada por `scripts/build.mjs`. O arquivo `dist/app.js` é gerado a partir de `src/`; alterações diretas no bundle são substituídas no próximo build.
 
-Próxima etapa futura: substituir os eventos inline por listeners nativos e carregar `src/main.js` diretamente.
+Evolução planejada: substituir os eventos inline por listeners nativos e carregar `src/main.js` diretamente.
 
 ## Testes
 

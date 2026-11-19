@@ -71,11 +71,11 @@ index.html          Página principal
 
 **Decisões técnicas:** a lógica de validação, custos e baixas foi extraída para `src/domain/`, permitindo testes sem navegador. Os controladores de interface chamam a camada de dados, que pode operar em memória ou, quando configurada separadamente, via Firebase. Um bundle de compatibilidade preserva os eventos HTML existentes enquanto essa migração é concluída.
 
-Leia [docs/ARQUITETURA.md](docs/ARQUITETURA.md) para os detalhes e limitações.
+Detalhes da organização e das limitações: [documentação de arquitetura](docs/ARQUITETURA.md).
 
 ## Executar localmente
 
-Você pode abrir `index.html` diretamente no navegador, usando o bundle já incluído. Se preferir servir por HTTP:
+O arquivo `index.html` funciona diretamente no navegador com o bundle incluído. Para utilizar um servidor HTTP local:
 
 ```bash
 python3 -m http.server 8000
@@ -111,7 +111,7 @@ Os cenários cobrem, entre outros pontos, quantidades inválidas, saldo insufici
 
 ## Segurança e limitações
 
-- Somente **dados demonstrativos** devem ser publicados. Não use credenciais ou dados internos de empresas.
+- A publicação utiliza **dados fictícios**; credenciais e informações internas de empresas não fazem parte do repositório.
 - O modo Firebase usa configurações externas e precisa de testes de segurança no Emulator Suite antes de uso real.
 - A gravação de coleções inteiras no Firebase opcional pode gerar conflito entre edições simultâneas. A demo local não possui esse problema entre visitantes.
 - A exclusão de um perfil não remove automaticamente a conta do Firebase Authentication.
@@ -133,4 +133,3 @@ As próximas melhorias estão registradas em Issues, com objetivos e critérios 
 
 Desenvolvido por [Mateus Faria Andrade](https://github.com/mateusfaria854-bit), estudante de Engenharia de Software na Universidade de Rio Verde (UniRV).
 
-[Modelo de README para perfil profissional](docs/PERFIL_GITHUB.md).

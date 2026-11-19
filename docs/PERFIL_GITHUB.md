@@ -23,5 +23,3 @@ Sistema web para gestão de peças e movimentações de estoque, com dashboards,
 ## Tecnologias
 
 `JavaScript` · `HTML5` · `CSS3` · `Firebase` · `Git` · `GitHub`
-
-> Este arquivo é um **modelo para o README do perfil**. Para aparecer na página do seu usuário, crie um repositório público chamado exatamente `mateusfaria854-bit` e copie o conteúdo para o `README.md` na raiz desse repositório.
