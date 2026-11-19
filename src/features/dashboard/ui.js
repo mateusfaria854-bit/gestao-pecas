@@ -1,8 +1,13 @@
+import { CATEGORIAS, CAT_BAR, TIPO_ENVIO_BADGE, escapeHtml, fmtDate, fmtMoney, jsArg } from '../../utils/helpers.js';
+import { db } from '../../services/data-store.js';
+import { fornNome, pecaNome, registrarRetorno } from '../reformas/ui.js';
+import { goPage } from '../../core/app.js';
+import { custoMedioPeca } from '../../domain/stock.js';
 
-function statCard(label, value, sub){
+export function statCard(label, value, sub){
   return `<div class="stat-card"><div class="stat-label">${escapeHtml(label)}</div><div class="stat-value${String(value).startsWith('R$') ? ' stat-value-money' : ''}">${escapeHtml(value)}</div>${sub?`<div class="stat-sub">${escapeHtml(sub)}</div>`:''}</div>`;
 }
-function renderDashboard(){
+export function renderDashboard(){
   const totalPecas = db.pecas.length;
   const valorEstoque = db.pecas.reduce((s,p)=>s+custoMedioPeca(p)*(Number(p.quantidade)||0),0);
   const baixoEstoque = db.pecas.filter(p=>p.quantidade<=p.minimo && p.status!=='Baixa');
@@ -54,7 +59,7 @@ function renderDashboard(){
     </div>`).join('')}</div>`;
 }
 
-function renderRelatorios(){
+export function renderRelatorios(){
   const mesFiltro = document.getElementById('rel-mes').value; // formato YYYY-MM
   const enviosFiltrados = mesFiltro ? db.envios.filter(e=>(e.dataEnvio||'').slice(0,7)===mesFiltro) : db.envios;
 
@@ -115,4 +120,3 @@ function renderRelatorios(){
     </tr>`).join('');
   }
 }
-

@@ -27,32 +27,27 @@ O sistema centraliza o cadastro de peças, o acompanhamento das movimentações 
 HTML, CSS e JavaScript puro (sem build) · Firebase Authentication · Firebase Realtime Database (opcional).
 
 ## Arquitetura
+
+O código-fonte está organizado em módulos ES, com separação das regras de negócio e da interface:
+
+```text
+src/
+  core/             inicialização, estado e configuração
+  domain/           regras de estoque, baixas e CSV
+  services/         Firebase/demonstração e integração simulada
+  features/         telas e fluxos de cada área
+  components/       modais e notificações
+  utils/            formatação e utilitários
+  styles/           CSS por responsabilidade e responsividade
+  main.js           entrada ES para evolução futura
+scripts/build.mjs   gera o bundle compatível dist/app.js
+tests/unit/         testes de regras puras
 ```
-index.html            estrutura das telas e modais
-css/                  style.css (tema/layout) · components.css (componentes)
-js/
-  utils.js            formatação, constantes, helpers
-  firebase.js         camada de dados: backend Firebase OU backend de demonstração (mesma interface `Dados`)
-  firebase-config.js  configuração (vazia = modo demonstração)
-  manutencao.js       integração SIMULADA com sistema de manutenção (ordens de serviço)
-  auth.js             sessão, login, perfis e permissões
-  usuarios.js         gestão de usuários (admin)
-  estoque.js          peças, entradas, curva A
-  fornecedores.js     fornecedores e ranking
-  reformas.js         envios e retornos
-  baixas.js           baixas para ônibus
-  dashboard.js        dashboard e relatórios
-  exportacao.js        exportações CSV (UTF-8, compatível com Excel)
-  auditoria.js        log de atividades
-  app.js              navegação, renderização e inicialização
-data/demo-data.json   dados fictícios (data/demo-data.js é a mesma cópia, para abrir sem servidor) (peças, fornecedores, envios, baixas, logs, usuários, OS)
-database.rules.json   Security Rules do Realtime Database
-docs/                 FIREBASE.md · PERMISSOES.md · screenshots/
-```
-A aplicação usa scripts clássicos que compartilham o escopo global (sem módulos ES), carregados na ordem do `index.html`.
+
+A versão publicada utiliza `dist/app.js`, gerado com `npm run build` a partir dos módulos ES. A ponte preserva os manipuladores HTML antigos durante a migração. **Não edite o bundle diretamente.** Mais detalhes em [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
 
 ## Como executar (modo demonstração)
-Basta abrir o `index.html` no navegador. Se preferir um servidor local:
+Abra `index.html` no navegador. Ao alterar JavaScript em `src/`, execute `npm run build` (Node.js 22+). Se preferir um servidor local:
 ```bash
 python3 -m http.server 8000
 # abra http://localhost:8000
@@ -63,7 +58,7 @@ As alterações ficam em memória e são perdidas ao recarregar a página.
 Dica: a baixa para o ônibus **108** é bloqueada de propósito (sem OS aberta na simulação); os ônibus 101–107, 109 e 110 têm OS aberta.
 
 ## Configurar com Firebase (opcional)
-Veja [docs/FIREBASE.md](docs/FIREBASE.md): copie `js/firebase-config.example.js` para `js/firebase-config.local.js`
+Veja [docs/FIREBASE.md](docs/FIREBASE.md): copie `src/core/firebase-config.example.js` para `src/core/firebase-config.local.js`
 (ignorado pelo Git), publique `database.rules.json` e crie o primeiro administrador.
 Use sempre um projeto Firebase **separado** de qualquer ambiente real.
 
@@ -85,14 +80,16 @@ A integração de ordens de serviço é simulada nesta versão.
 | ![Dashboard](docs/screenshots/01-dashboard.png) | ![Estoque](docs/screenshots/02-estoque.png) | ![Baixas](docs/screenshots/05-baixas.png) |
 
 ## Testes
-Para executar os testes automatizados de regressão (Chromium instalado e `pip install playwright`):
+Execute os testes unitários com Node.js 22+ e os testes de regressão com Chromium e Playwright:
 ```bash
+npm run build
+npm test
 python3 tests/test_demo.py
 python3 tests/test_melhorias.py
 ```
 Em outros sistemas, defina `CHROMIUM_BIN` com o caminho do Chromium. Os testes abrangem as baixas, saldo, entradas, histórico de custos, envios, XSS, exportação CSV, notificações, navegação acessível e responsividade mobile.
 
-O GitHub Actions executa esses testes automaticamente a cada *push* e *pull request*, em `.github/workflows/testes.yml`. Os testes do Firebase real no Emulator Suite são uma etapa separada.
+O GitHub Actions executa o build, os testes unitários e os testes integrados automaticamente a cada *push* e *pull request*, em `.github/workflows/testes.yml`. Os testes do Firebase real no Emulator Suite são uma etapa separada.
 
 ## Limitações conhecidas
 - Coleções operacionais são gravadas como um array inteiro: edições simultâneas podem se sobrepor (última gravação vence), e as regras não distinguem criar/editar/excluir dentro de uma coleção.
@@ -111,4 +108,4 @@ O GitHub Actions executa esses testes automaticamente a cada *push* e *pull requ
 - Cloud Functions para criação/remoção completa de usuários e para a integração real de manutenção
 - Testes de regras no Firebase Emulator, cobertura unitária adicional e monitoramento em produção
 - Exportação em PDF e importação de planilhas
-- Módulos ES e bundler
+- Migrar os eventos HTML inline para módulos ES nativos e remover o bundle de compatibilidade

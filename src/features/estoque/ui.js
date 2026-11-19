@@ -1,6 +1,15 @@
+import { CATEGORIAS, CAT_BADGE, ITENS_POR_PAGINA, STATUS_PECA_BADGE, debounce, escapeHtml, fmtDate, fmtMoney, jsArg, normalizarNome, todayISO, uid } from '../../utils/helpers.js';
+import { db, saveDB } from '../../services/data-store.js';
+import { logAction } from '../auditoria/ui.js';
+import { atualizarBaixaEstoqueInfo } from '../baixas/ui.js';
+import { statCard } from '../dashboard/ui.js';
+import { renderAll } from '../../core/app.js';
+import { custoMedioPeca, quantidadeValida, valorValido } from '../../domain/stock.js';
+import { closeModal, openModal, showConfirm } from '../../components/modal.js';
+import { notifyError } from '../../components/notifications.js';
+import { uiState } from '../../core/state.js';
 
-
-function openPecaModal(id){
+export function openPecaModal(id){
   document.getElementById('peca-id').value = id||'';
   if(id){
     const p = db.pecas.find(x=>x.id===id);
@@ -23,7 +32,7 @@ function openPecaModal(id){
   } else {
     document.getElementById('peca-modal-title').textContent = 'Nova Peça';
     ['peca-nome','peca-codigo','peca-local','peca-obs'].forEach(i=>document.getElementById(i).value='');
-    document.getElementById('peca-categoria').value = estoqueCatFiltro || 'Funilaria';
+    document.getElementById('peca-categoria').value = uiState.estoqueCatFiltro || 'Funilaria';
     document.getElementById('peca-quantidade').value = 0;
     document.getElementById('peca-minimo').value = 0;
     document.getElementById('peca-unidade').value = 'un';
@@ -37,19 +46,7 @@ function openPecaModal(id){
   }
   openModal('modal-peca');
 }
-function custoMedioPeca(p){
-  // Ajustes de valor não alteram o histórico de compras.
-  if(p.valorAjustado !== undefined && p.valorAjustado !== null && valorValido(Number(p.valorAjustado))){
-    return Number(p.valorAjustado);
-  }
-  if(Array.isArray(p.entradas) && p.entradas.length){
-    let qtd=0, tot=0;
-    p.entradas.forEach(e=>{ qtd += Number(e.quantidade)||0; tot += (Number(e.quantidade)||0)*(Number(e.valorUnitario)||0); });
-    if(qtd>0) return tot/qtd;
-  }
-  return Number(p.valor)||0;
-}
-function savePeca(){
+export function savePeca(){
   const nome = document.getElementById('peca-nome').value.trim();
   if(!nome){ notifyError('Informe o nome da peça.'); return; }
   const id = document.getElementById('peca-id').value;
@@ -118,11 +115,11 @@ function savePeca(){
   renderAll();
 }
 
-let comboItens = {};
-function comboAbrir(prefix){
+export let comboItens = {};
+export function comboAbrir(prefix){
   comboFiltro(prefix);
 }
-function comboFiltro(prefix){
+export function comboFiltro(prefix){
   const search = document.getElementById(prefix+'-peca-search');
   const dropdown = document.getElementById(prefix+'-peca-dropdown');
   if(!search || !dropdown) return;
@@ -144,7 +141,7 @@ function comboFiltro(prefix){
   }
   dropdown.classList.add('open');
 }
-function comboSelecionar(prefix, id){
+export function comboSelecionar(prefix, id){
   const items = comboItens[prefix] || [];
   const p = items.find(x=>x.id===id);
   if(!p) return;
@@ -153,10 +150,10 @@ function comboSelecionar(prefix, id){
   document.getElementById(prefix+'-peca-dropdown').classList.remove('open');
   if(prefix==='baixa') atualizarBaixaEstoqueInfo();
 }
-function comboFechar(prefix){
+export function comboFechar(prefix){
   setTimeout(()=>{ const d = document.getElementById(prefix+'-peca-dropdown'); if(d) d.classList.remove('open'); }, 150);
 }
-function comboLimpar(prefix){
+export function comboLimpar(prefix){
   document.getElementById(prefix+'-peca').value = '';
   document.getElementById(prefix+'-peca-search').value = '';
   const d = document.getElementById(prefix+'-peca-dropdown');
@@ -164,7 +161,7 @@ function comboLimpar(prefix){
   d.classList.remove('open');
 }
 
-function openEntradaModal(){
+export function openEntradaModal(){
   comboItens['entrada'] = [...db.pecas].sort((a,b)=>a.nome.localeCompare(b.nome));
   comboLimpar('entrada');
   document.getElementById('entrada-quantidade').value = 1;
@@ -172,7 +169,7 @@ function openEntradaModal(){
   document.getElementById('entrada-data').value = todayISO();
   openModal('modal-entrada');
 }
-function salvarEntrada(){
+export function salvarEntrada(){
   const pecaId = document.getElementById('entrada-peca').value;
   const p = db.pecas.find(x=>x.id===pecaId);
   if(!p){ notifyError('Pesquise e selecione uma peça válida na lista.'); return; }
@@ -198,7 +195,7 @@ function salvarEntrada(){
   closeModal('modal-entrada');
   renderAll();
 }
-function deletePeca(id){
+export function deletePeca(id){
   const p = db.pecas.find(x=>x.id===id);
   showConfirm('Excluir esta peça do estoque? Essa ação não pode ser desfeita.', ()=>{
     db.pecas = db.pecas.filter(x=>x.id!==id);
@@ -208,43 +205,43 @@ function deletePeca(id){
     renderAll();
   });
 }
-function renderCatTabs(){
+export function renderCatTabs(){
   const wrap = document.getElementById('estoque-cat-tabs');
   wrap.innerHTML = '';
   const all = document.createElement('button');
   all.type = 'button';
-  all.setAttribute('aria-pressed', String(estoqueCatFiltro===''));
-  all.className = 'cat-tab' + (estoqueCatFiltro===''?' active':'');
+  all.setAttribute('aria-pressed', String(uiState.estoqueCatFiltro===''));
+  all.className = 'cat-tab' + (uiState.estoqueCatFiltro===''?' active':'');
   all.textContent = 'Todas as categorias';
-  all.onclick = ()=>{ estoqueCatFiltro=''; renderCatTabs(); renderEstoque(); };
+  all.onclick = ()=>{ uiState.estoqueCatFiltro=''; renderCatTabs(); renderEstoque(); };
   wrap.appendChild(all);
   CATEGORIAS.forEach(c=>{
     const d = document.createElement('button');
     d.type = 'button';
-    d.setAttribute('aria-pressed', String(estoqueCatFiltro===c));
-    d.className = 'cat-tab' + (estoqueCatFiltro===c?' active':'');
+    d.setAttribute('aria-pressed', String(uiState.estoqueCatFiltro===c));
+    d.className = 'cat-tab' + (uiState.estoqueCatFiltro===c?' active':'');
     d.textContent = c;
-    d.onclick = ()=>{ estoqueCatFiltro=c; renderCatTabs(); renderEstoque(); };
+    d.onclick = ()=>{ uiState.estoqueCatFiltro=c; renderCatTabs(); renderEstoque(); };
     wrap.appendChild(d);
   });
 }
-function filtrarEstoque(){
+export function filtrarEstoque(){
   const search = (document.getElementById('search-pecas').value||'').toLowerCase();
   const statusF = document.getElementById('filter-status-peca').value;
   return db.pecas.filter(p=>{
-    if(estoqueCatFiltro && p.categoria!==estoqueCatFiltro) return false;
+    if(uiState.estoqueCatFiltro && p.categoria!==uiState.estoqueCatFiltro) return false;
     if(statusF && p.status!==statusF) return false;
     if(search && !(p.nome.toLowerCase().includes(search) || (p.codigo||'').toLowerCase().includes(search) || (p.local||'').toLowerCase().includes(search))) return false;
     return true;
   }).sort((a,b)=>a.nome.localeCompare(b.nome));
 }
-function renderEstoque(){
+export function renderEstoque(){
   const list = filtrarEstoque();
 
   const totalPaginas = Math.max(1, Math.ceil(list.length / ITENS_POR_PAGINA));
-  if(estoquePagina > totalPaginas) estoquePagina = totalPaginas;
-  if(estoquePagina < 1) estoquePagina = 1;
-  const inicio = (estoquePagina-1) * ITENS_POR_PAGINA;
+  if(uiState.estoquePagina > totalPaginas) uiState.estoquePagina = totalPaginas;
+  if(uiState.estoquePagina < 1) uiState.estoquePagina = 1;
+  const inicio = (uiState.estoquePagina-1) * ITENS_POR_PAGINA;
   const pageList = list.slice(inicio, inicio + ITENS_POR_PAGINA);
 
   const tbody = document.getElementById('pecas-tbody');
@@ -283,11 +280,11 @@ function renderEstoque(){
     pagWrap.innerHTML = '';
   } else {
     pagWrap.innerHTML = `
-      <button class="pagination-btn" ${estoquePagina<=1?'disabled':''} onclick="estoquePagina=1;renderEstoque()">« Primeira</button>
-      <button class="pagination-btn" ${estoquePagina<=1?'disabled':''} onclick="estoquePagina--;renderEstoque()">‹ Anterior</button>
-      <span class="pagination-info">Página ${estoquePagina} de ${totalPaginas} · ${list.length} peça(s)</span>
-      <button class="pagination-btn" ${estoquePagina>=totalPaginas?'disabled':''} onclick="estoquePagina++;renderEstoque()">Próxima ›</button>
-      <button class="pagination-btn" ${estoquePagina>=totalPaginas?'disabled':''} onclick="estoquePagina=${totalPaginas};renderEstoque()">Última »</button>
+      <button class="pagination-btn" ${uiState.estoquePagina<=1?'disabled':''} onclick="uiState.estoquePagina=1;renderEstoque()">« Primeira</button>
+      <button class="pagination-btn" ${uiState.estoquePagina<=1?'disabled':''} onclick="uiState.estoquePagina--;renderEstoque()">‹ Anterior</button>
+      <span class="pagination-info">Página ${uiState.estoquePagina} de ${totalPaginas} · ${list.length} peça(s)</span>
+      <button class="pagination-btn" ${uiState.estoquePagina>=totalPaginas?'disabled':''} onclick="uiState.estoquePagina++;renderEstoque()">Próxima ›</button>
+      <button class="pagination-btn" ${uiState.estoquePagina>=totalPaginas?'disabled':''} onclick="uiState.estoquePagina=${totalPaginas};renderEstoque()">Última »</button>
     `;
   }
 
@@ -301,10 +298,9 @@ function renderEstoque(){
   `;
 }
 
-let curvaPagina = 1;
-const debouncedRenderCurvaA = debounce(()=>{ curvaPagina = 1; renderCurvaA(); }, 250);
+export const debouncedRenderCurvaA = debounce(()=>{ uiState.curvaPagina = 1; renderCurvaA(); }, 250);
 
-function openMoverCurvaAModal(id){
+export function openMoverCurvaAModal(id){
   const p = db.pecas.find(x=>x.id===id);
   if(!p) return;
   if(p.status==='Em Reforma'){
@@ -322,7 +318,7 @@ function openMoverCurvaAModal(id){
   document.getElementById('curvaa-motivo').value = '';
   openModal('modal-curvaa-mover');
 }
-function moverParaCurvaA(){
+export function moverParaCurvaA(){
   const id = document.getElementById('curvaa-peca-id').value;
   const p = db.pecas.find(x=>x.id===id);
   if(!p){ notifyError('Peça não encontrada no estoque.'); return; }
@@ -369,7 +365,7 @@ function moverParaCurvaA(){
   closeModal('modal-curvaa-mover');
   renderAll();
 }
-function devolverDaCurvaA(id){
+export function devolverDaCurvaA(id){
   const c = db.curvaA.find(x=>x.id===id);
   if(!c) return;
   showConfirm(`Devolver "${c.nome}" (${c.quantidade} ${c.unidade||'un'}) para Peças em Estoque?`, ()=>{
@@ -405,7 +401,7 @@ function devolverDaCurvaA(id){
     renderAll();
   });
 }
-function deleteCurvaA(id){
+export function deleteCurvaA(id){
   const c = db.curvaA.find(x=>x.id===id);
   if(!c) return;
   showConfirm('Excluir esta peça da Curva A? Ela não voltará ao estoque. Essa ação não pode ser desfeita.', ()=>{
@@ -416,7 +412,7 @@ function deleteCurvaA(id){
     renderAll();
   });
 }
-function renderCurvaA(){
+export function renderCurvaA(){
   const search = (document.getElementById('search-curvaa').value||'').toLowerCase();
   const catF = document.getElementById('filter-cat-curvaa').value;
   const list = db.curvaA.filter(c=>{
@@ -426,9 +422,9 @@ function renderCurvaA(){
   }).sort((a,b)=>a.nome.localeCompare(b.nome));
 
   const totalPaginas = Math.max(1, Math.ceil(list.length / ITENS_POR_PAGINA));
-  if(curvaPagina > totalPaginas) curvaPagina = totalPaginas;
-  if(curvaPagina < 1) curvaPagina = 1;
-  const inicio = (curvaPagina-1) * ITENS_POR_PAGINA;
+  if(uiState.curvaPagina > totalPaginas) uiState.curvaPagina = totalPaginas;
+  if(uiState.curvaPagina < 1) uiState.curvaPagina = 1;
+  const inicio = (uiState.curvaPagina-1) * ITENS_POR_PAGINA;
   const pageList = list.slice(inicio, inicio + ITENS_POR_PAGINA);
 
   document.getElementById('curvaa-empty').style.display = list.length ? 'none' : 'block';
@@ -462,11 +458,11 @@ function renderCurvaA(){
     pagWrap.innerHTML = '';
   } else {
     pagWrap.innerHTML = `
-      <button class="pagination-btn" ${curvaPagina<=1?'disabled':''} onclick="curvaPagina=1;renderCurvaA()">« Primeira</button>
-      <button class="pagination-btn" ${curvaPagina<=1?'disabled':''} onclick="curvaPagina--;renderCurvaA()">‹ Anterior</button>
-      <span class="pagination-info">Página ${curvaPagina} de ${totalPaginas} · ${list.length} peça(s)</span>
-      <button class="pagination-btn" ${curvaPagina>=totalPaginas?'disabled':''} onclick="curvaPagina++;renderCurvaA()">Próxima ›</button>
-      <button class="pagination-btn" ${curvaPagina>=totalPaginas?'disabled':''} onclick="curvaPagina=${totalPaginas};renderCurvaA()">Última »</button>
+      <button class="pagination-btn" ${uiState.curvaPagina<=1?'disabled':''} onclick="uiState.curvaPagina=1;renderCurvaA()">« Primeira</button>
+      <button class="pagination-btn" ${uiState.curvaPagina<=1?'disabled':''} onclick="uiState.curvaPagina--;renderCurvaA()">‹ Anterior</button>
+      <span class="pagination-info">Página ${uiState.curvaPagina} de ${totalPaginas} · ${list.length} peça(s)</span>
+      <button class="pagination-btn" ${uiState.curvaPagina>=totalPaginas?'disabled':''} onclick="uiState.curvaPagina++;renderCurvaA()">Próxima ›</button>
+      <button class="pagination-btn" ${uiState.curvaPagina>=totalPaginas?'disabled':''} onclick="uiState.curvaPagina=${totalPaginas};renderCurvaA()">Última »</button>
     `;
   }
 
@@ -478,4 +474,3 @@ function renderCurvaA(){
     ${statCard('Unidades Paradas', totalItens, 'unidades somadas')}
   `;
 }
-

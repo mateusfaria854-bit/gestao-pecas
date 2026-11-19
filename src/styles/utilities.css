@@ -1,0 +1,57 @@
+/* utilities */
+
+/* Estilos estáticos extraídos do HTML. */
+
+.u-layout-01 { display:grid;grid-template-columns:1.3fr 1fr;gap:16px; }
+
+.u-grid-3 { grid-template-columns:repeat(3,1fr); }
+
+.u-width-170 { width:170px; }
+
+.u-layout-04 { display:flex;gap:8px;align-items:center;justify-content:center;margin-top:14px; }
+
+.u-grid-4 { grid-template-columns:repeat(4,1fr); }
+
+.u-width-150 { width:150px; }
+
+.u-width-230 { width:230px; }
+
+.u-layout-08 { font-size:12.5px;color:var(--muted);white-space:nowrap; }
+
+.u-layout-09 { width:170px;flex:none; }
+
+.u-layout-10 { display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px; }
+
+.u-layout-11 { border:none; }
+
+.u-layout-12 { position:fixed;inset:0;background:var(--black);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px; }
+
+.u-layout-13 { width:52px;height:52px; }
+
+.u-layout-14 { font-size:12.5px;color:var(--muted); }
+
+.u-mb-16 { margin-bottom:16px; }
+
+.u-layout-16 { width:100%; }
+
+.u-mb-12 { margin-bottom:12px; }
+
+.u-layout-18 { text-align:center;margin-top:10px; }
+
+.u-layout-19 { font-size:11.5px;color:var(--muted);margin-top:14px; }
+
+.u-layout-20 { font-size:11.5px;color:var(--muted);margin-top:4px; }
+
+.u-width-440 { width:440px; }
+
+.u-mb-14 { margin-bottom:14px; }
+
+.u-layout-23 { font-size:11.5px;color:var(--muted);margin-top:12px; }
+
+.u-layout-24 { margin-right:auto; }
+
+.u-width-460 { width:460px; }
+
+.u-layout-26 { font-weight:600; }
+
+.u-width-400 { width:400px; }

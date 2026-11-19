@@ -3,11 +3,8 @@ import os, re
 from playwright.sync_api import sync_playwright
 
 root = Path(__file__).resolve().parents[1]
-scripts = ['js/firebase-config.js','data/demo-data.js','js/utils.js','js/firebase.js',
-           'js/manutencao.js','js/auth.js','js/auditoria.js','js/usuarios.js',
-           'js/estoque.js','js/fornecedores.js','js/reformas.js','js/baixas.js',
-           'js/dashboard.js','js/exportacao.js','js/app.js']
-html = (root/'index.html').read_text(encoding='utf-8')
+scripts=['src/core/firebase-config.js','data/demo-data.js','dist/app.js']
+html= (root/'index.html').read_text(encoding='utf-8')
 html = re.sub(r'<script\b[^>]*>.*?</script>', '', html, flags=re.I | re.S)
 html = re.sub(r'<link[^>]*stylesheet[^>]*>', '', html, flags=re.I | re.S)
 
@@ -24,7 +21,7 @@ with sync_playwright() as pw:
     errors = []
     page.on('pageerror', lambda exc: errors.append(str(exc)))
     page.set_content(html)
-    for path in ('css/style.css','css/components.css'):
+    for path in ('src/styles/variables.css','src/styles/base.css','src/styles/layout.css','src/styles/components.css','src/styles/forms.css','src/styles/tables.css','src/styles/dashboard.css','src/styles/login.css','src/styles/utilities.css','src/styles/responsive.css'):
         page.add_style_tag(content=re.sub(r'(?m)^\s*@import[^\n]*\n', '', (root/path).read_text(encoding='utf-8')))
     for path in scripts:
         page.add_script_tag(content=(root/path).read_text(encoding='utf-8'))

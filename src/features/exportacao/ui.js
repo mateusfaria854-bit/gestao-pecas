@@ -1,10 +1,12 @@
-function celulaCsv(valor){
-  if(valor === undefined || valor === null) return '';
-  let texto = String(valor);
-  if(typeof valor === 'string' && /^[\s]*[=+@\-\t\r]/.test(texto)) texto = "'" + texto;
-  return '"' + texto.replace(/"/g,'""') + '"';
-}
-function baixarCsv(nomeArquivo, cabecalhos, linhas){
+import { db } from '../../services/data-store.js';
+import { filtrarEstoque } from '../estoque/ui.js';
+import { fornNome, pecaNome } from '../reformas/ui.js';
+import { filtrarBaixas } from '../baixas/ui.js';
+import { custoMedioPeca } from '../../domain/stock.js';
+import { celulaCsv } from '../../domain/csv.js';
+import { notifyError, notifySuccess } from '../../components/notifications.js';
+
+export function baixarCsv(nomeArquivo, cabecalhos, linhas){
   if(!linhas.length){ notifyError('Não há registros para exportar com os filtros atuais.'); return false; }
   const linhasCsv = [cabecalhos, ...linhas].map(l => l.map(celulaCsv).join(';')).join('\r\n');
   const blob = new Blob(['\uFEFF',linhasCsv],{type:'text/csv;charset=utf-8;'});
@@ -19,7 +21,7 @@ function baixarCsv(nomeArquivo, cabecalhos, linhas){
   notifySuccess(`Arquivo ${nomeArquivo} preparado.`);
   return true;
 }
-function exportarEstoqueCSV(){
+export function exportarEstoqueCSV(){
   const linhas = filtrarEstoque().map(p => [
     p.codigo||'',p.nome,p.categoria,p.quantidade,p.unidade||'un',p.minimo,
     p.local||'',custoMedioPeca(p).toFixed(2).replace('.',','),
@@ -28,7 +30,7 @@ function exportarEstoqueCSV(){
   return baixarCsv('gestaopecas-estoque.csv',
     ['Código','Peça','Categoria','Quantidade','Unidade','Estoque mínimo','Local','Custo médio (R$)','Valor em estoque (R$)','Status'], linhas);
 }
-function exportarBaixasCSV(){
+export function exportarBaixasCSV(){
   const pecas = new Map(db.pecas.map(p=>[p.id,p]));
   (db.curvaA||[]).forEach(p=>{if(!pecas.has(p.origemId))pecas.set(p.origemId,p);});
   const linhas = filtrarBaixas().sort((a,b)=>(b.data||'').localeCompare(a.data||'')).map(b => {
@@ -39,7 +41,7 @@ function exportarBaixasCSV(){
   return baixarCsv('gestaopecas-baixas.csv',
     ['Data','Peça','Código','Ônibus','Quantidade','Status','Solicitante','Entregue por','Observações'], linhas);
 }
-function exportarEnviosCSV(){
+export function exportarEnviosCSV(){
   const mes = document.getElementById('rel-mes').value;
   const linhas = db.envios.filter(e => !mes || (e.dataEnvio||'').slice(0,7)===mes)
     .sort((a,b)=>(b.dataEnvio||'').localeCompare(a.dataEnvio||''))
@@ -48,7 +50,7 @@ function exportarEnviosCSV(){
   return baixarCsv(`gestaopecas-envios-${mes||'todos'}.csv`,
     ['Data do envio','Peça','Fornecedor','Tipo','Status','Valor (R$)','Data do retorno','Observações'], linhas);
 }
-function exportarRankingCSV(){
+export function exportarRankingCSV(){
   const mes = document.getElementById('rel-mes').value;
   const envios = db.envios.filter(e=>!mes || (e.dataEnvio||'').slice(0,7)===mes);
   const linhas = db.fornecedores.map(f => {

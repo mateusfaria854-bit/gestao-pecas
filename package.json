@@ -1,0 +1,10 @@
+{
+  "name": "gestao-pecas",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/unit/*.test.mjs",
+    "build": "node scripts/build.mjs"
+  }
+}

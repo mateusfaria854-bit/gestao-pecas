@@ -1,12 +1,20 @@
+import { STATUS_ENVIO_BADGE, TIPO_ENVIO_BADGE, escapeHtml, fmtDate, fmtMoney, jsArg, todayISO, uid } from '../../utils/helpers.js';
+import { db, saveDB } from '../../services/data-store.js';
+import { logAction } from '../auditoria/ui.js';
+import { statCard } from '../dashboard/ui.js';
+import { renderAll } from '../../core/app.js';
+import { valorValido } from '../../domain/stock.js';
+import { closeModal, openModal, showConfirm } from '../../components/modal.js';
+import { notifyError } from '../../components/notifications.js';
 
-function atualizarStatusEnvioPeca(pecaId){
+export function atualizarStatusEnvioPeca(pecaId){
   const peca = db.pecas.find(p => p.id === pecaId);
   if(!peca) return;
   const existeAberto = db.envios.some(e => e.pecaId === pecaId && e.status !== 'Retornado');
   if(existeAberto) peca.status = 'Em Reforma';
   else if(peca.status === 'Em Reforma') peca.status = 'Disponível';
 }
-function populateEnvioSelects(){
+export function populateEnvioSelects(){
   const pecaSel = document.getElementById('envio-peca');
   const fornSel = document.getElementById('envio-fornecedor');
   const curPeca = pecaSel.value, curForn = fornSel.value;
@@ -20,7 +28,7 @@ function populateEnvioSelects(){
 document.getElementById('envio-status').addEventListener('change', function(){
   document.getElementById('envio-retorno-data-wrap').style.display = this.value==='Retornado' ? '' : 'none';
 });
-function openEnvioModal(id){
+export function openEnvioModal(id){
   populateEnvioSelects();
   document.getElementById('envio-id').value = id||'';
   document.getElementById('envio-retorno-data-wrap').style.display='none';
@@ -53,7 +61,7 @@ function openEnvioModal(id){
   }
   openModal('modal-envio');
 }
-function saveEnvio(){
+export function saveEnvio(){
   const pecaId = document.getElementById('envio-peca').value;
   const fornecedorId = document.getElementById('envio-fornecedor').value;
   if(!pecaId || !fornecedorId){ notifyError('Selecione a peça e o fornecedor.'); return; }
@@ -97,7 +105,7 @@ function saveEnvio(){
   closeModal('modal-envio');
   renderAll();
 }
-function registrarRetorno(id){
+export function registrarRetorno(id){
   const e = db.envios.find(x=>x.id===id);
   if(!e) return;
   e.status = 'Retornado';
@@ -107,7 +115,7 @@ function registrarRetorno(id){
   logAction('retorno', 'Retorno de reforma registrado', `${pecaNome(e.pecaId)} de ${fornNome(e.fornecedorId)}`);
   renderAll();
 }
-function deleteEnvio(id){
+export function deleteEnvio(id){
   const e = db.envios.find(x=>x.id===id);
   showConfirm('Excluir este registro de envio? Essa ação não pode ser desfeita.', ()=>{
     db.envios = db.envios.filter(x=>x.id!==id);
@@ -118,10 +126,10 @@ function deleteEnvio(id){
     renderAll();
   });
 }
-function pecaNome(id){ const p = db.pecas.find(x=>x.id===id) || (db.curvaA||[]).find(c=>c.origemId===id); return p ? p.nome : '(peça removida)'; }
-function fornNome(id){ const f = db.fornecedores.find(x=>x.id===id); return f ? f.nome : '(fornecedor removido)'; }
+export function pecaNome(id){ const p = db.pecas.find(x=>x.id===id) || (db.curvaA||[]).find(c=>c.origemId===id); return p ? p.nome : '(peça removida)'; }
+export function fornNome(id){ const f = db.fornecedores.find(x=>x.id===id); return f ? f.nome : '(fornecedor removido)'; }
 
-function renderEnvios(){
+export function renderEnvios(){
   const search = (document.getElementById('search-envios').value||'').toLowerCase();
   const tipoF = document.getElementById('filter-tipo-envio').value;
   const statusF = document.getElementById('filter-status-envio').value;
@@ -190,4 +198,3 @@ function renderEnvios(){
     ${statCard('Gasto no Mês', fmtMoney(gastoMes), '')}
   `;
 }
-

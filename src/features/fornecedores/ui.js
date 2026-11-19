@@ -1,5 +1,11 @@
+import { escapeHtml, fmtMoney, jsArg, uid } from '../../utils/helpers.js';
+import { db, saveDB } from '../../services/data-store.js';
+import { logAction } from '../auditoria/ui.js';
+import { renderAll } from '../../core/app.js';
+import { closeModal, openModal, showConfirm } from '../../components/modal.js';
+import { notifyError } from '../../components/notifications.js';
 
-function openFornecedorModal(id){
+export function openFornecedorModal(id){
   document.getElementById('forn-id').value = id||'';
   if(id){
     const f = db.fornecedores.find(x=>x.id===id);
@@ -18,7 +24,7 @@ function openFornecedorModal(id){
   }
   openModal('modal-fornecedor');
 }
-function saveFornecedor(){
+export function saveFornecedor(){
   const nome = document.getElementById('forn-nome').value.trim();
   if(!nome){ notifyError('Informe o nome do fornecedor.'); return; }
   const id = document.getElementById('forn-id').value;
@@ -43,7 +49,7 @@ function saveFornecedor(){
   closeModal('modal-fornecedor');
   renderAll();
 }
-function deleteFornecedor(id){
+export function deleteFornecedor(id){
   const emUso = db.envios.some(e=>e.fornecedorId===id);
   if(emUso){ notifyError('Este fornecedor possui envios vinculados e não pode ser excluído.'); return; }
   const f = db.fornecedores.find(x=>x.id===id);
@@ -55,7 +61,7 @@ function deleteFornecedor(id){
     renderAll();
   });
 }
-function renderFornecedores(){
+export function renderFornecedores(){
   const search = (document.getElementById('search-fornecedores').value||'').toLowerCase();
   let list = db.fornecedores.filter(f=>{
     if(search && !(f.nome.toLowerCase().includes(search) || (f.cnpj||'').toLowerCase().includes(search))) return false;
@@ -89,4 +95,3 @@ function renderFornecedores(){
     grid.appendChild(card);
   });
 }
-
