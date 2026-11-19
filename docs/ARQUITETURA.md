@@ -45,3 +45,11 @@ Os testes unitários rodam em Node.js, sem navegador; os testes de regressão ex
 - CSS dividido por responsabilidade, com responsividade agrupada.
 - `style="display:none"` permanece em alguns elementos cujo estado é controlado pelo JavaScript.
 - Firebase opcional requer testes de regras no Emulator Suite e concorrência antes de uso produtivo.
+
+## Regras de evolução e fronteiras verificadas
+
+O desenvolvimento de funcionalidades utiliza especificações versionadas em `specs/` com critérios de aceitação, plano, tarefas e evidências de testes. O processo está documentado em [SDD](SDD.md), e os princípios de arquitetura estão em [`specs/constitution.md`](../specs/constitution.md).
+
+A verificação automática `npm run arch:check` protege a camada `src/domain/` contra dependências de navegador, Firebase e outros diretórios. É uma restrição **específica do domínio**; não implica que todas as demais dependências do projeto já estejam ideais. Atualmente, `src/services/data-store.js` ainda importa funções de interface, um acoplamento legado que requer migração incremental com testes.
+
+A decisão de não adicionar SCSS nem trocar a stack nesta etapa está registrada em [ADR 0001](adr/0001-sdd-incremental.md).

@@ -17,6 +17,8 @@ jobs:
         run: |
           npm run build
           npm test
+          npm run spec:check
+          npm run arch:check
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
