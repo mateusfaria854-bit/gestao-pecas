@@ -17,14 +17,36 @@ jobs:
         run: |
           npm run build
           npm test
+          npm run spec:check
+          npm run arch:check
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Instalar Playwright e Chromium
+      # Ubuntu 24.04 no GitHub Actions já inclui Chromium e suas bibliotecas.
+      # Evita downloads APT que podem falhar temporariamente com HTTP 503.
+      - name: Instalar Playwright e usar Chromium do runner
+        shell: bash
         run: |
-          python -m pip install --upgrade pip
           python -m pip install playwright==1.57.0
-          python -m playwright install --with-deps chromium
+          CHROME_BIN="$(command -v chromium || command -v google-chrome || command -v google-chrome-stable || true)"
+          if [ -z "$CHROME_BIN" ]; then
+            echo "::error::Chromium/Chrome não encontrado no runner ubuntu-24.04"
+            exit 1
+          fi
+          echo "CHROMIUM_BIN=$CHROME_BIN" >> "$GITHUB_ENV"
+          "$CHROME_BIN" --version
+          CHROMIUM_BIN="$CHROME_BIN" python - <<'PY'
+          import os
+          from playwright.sync_api import sync_playwright
+          with sync_playwright() as pw:
+              browser = pw.chromium.launch(
+                  headless=True,
+                  executable_path=os.environ["CHROMIUM_BIN"],
+                  args=["--no-sandbox", "--no-proxy-server"],
+              )
+              print("Navegador iniciado:", browser.version)
+              browser.close()
+          PY
       - name: Testes integrados de regressão
         run: |
           python tests/test_demo.py

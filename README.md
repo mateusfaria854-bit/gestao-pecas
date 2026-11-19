@@ -73,6 +73,19 @@ index.html          Página principal
 
 Detalhes da organização e das limitações: [documentação de arquitetura](docs/ARQUITETURA.md).
 
+## Processo de desenvolvimento (SDD)
+
+Mudanças de funcionalidades seguem um fluxo leve de **Spec-Driven Development**: especificação de comportamento, plano técnico, tarefas rastreáveis, implementação e validação. O objetivo é manter decisões e critérios de aceite acessíveis no próprio repositório, inclusive ao trabalhar com agentes de IA.
+
+- [Processo e comandos](docs/SDD.md) · [Especificações](specs/README.md) · [Decisões arquiteturais](docs/adr/0001-sdd-incremental.md)
+- [Guia para agentes de programação](AGENTS.md) · [Integração Claude Code](.claude/skills/gestao-pecas-sdd/SKILL.md)
+
+```bash
+npm run spec:new -- nome-da-funcionalidade
+npm run spec:check
+npm run arch:check
+```
+
 ## Executar localmente
 
 O arquivo `index.html` funciona diretamente no navegador com o bundle incluído. Para utilizar um servidor HTTP local:
